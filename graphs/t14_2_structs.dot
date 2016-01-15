@@ -1,0 +1,20 @@
+digraph "t14_2_structs.dot" {
+concentrate=true
+
+subgraph cluster_s714 {
+style=dashed; color="#FFCCFF"
+"s713" [
+label="s713:Int"
+color=gray
+]
+"s714" [
+label="s714:Int => (Int, Int) =\ls713 => s715 = (s713, s713)"
+shape=box,color=magenta,tooltip="s714:Int => (Int, Int)"
+]
+{rank=source; s713}
+{rank=sink; s714}
+}
+"s713" -> "s714" [style=dashed, color=lightgray, weight=0]
+"s713" -> "s714" [style=solid]
+"s713" -> "s714" [style=solid]
+}
