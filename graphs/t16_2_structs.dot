@@ -1,0 +1,134 @@
+digraph "t16_2_structs.dot" {
+concentrate=true
+
+subgraph cluster_s1896 {
+style=dashed; color="#FFCCFF"
+"s1895" [
+label="s1895:{_1: Int; _2: Int}"
+color=gray
+]
+"s1896" [
+label="s1896:Struct => Int =\ls1895 => s1899 = s1897 - s1898"
+shape=box,color=magenta,tooltip="s1896:Struct => Int"
+]
+{rank=source; s1895}
+"s1897" [
+label="s1897:Int = s1895._2"
+shape=box,color=gray,tooltip="s1897:Int"
+]
+"s1898" [
+label="s1898:Int = s1895._1"
+shape=box,color=gray,tooltip="s1898:Int"
+]
+{rank=sink; s1896}
+}
+subgraph cluster_s1835 {
+style=dashed; color="#FFCCFF"
+"s1834" [
+label="s1834:{_1: Int; _2: Int; _3: Boolean}"
+color=gray
+]
+"s1835" [
+label="s1835:Struct => Int =\ls1834 => s1894 = s1890 - s1889"
+shape=box,color=magenta,tooltip="s1835:Struct => Int"
+]
+{rank=source; s1834}
+"s1836" [
+label="s1836:Boolean = s1834._3"
+shape=box,color=gray,tooltip="s1836:Boolean"
+]
+"s1837" [
+label="s1837:Int = s1834._1"
+shape=box,color=gray,tooltip="s1837:Int"
+]
+"s1838" [
+label="s1838:Int = s1834._2"
+shape=box,color=gray,tooltip="s1838:Int"
+]
+"s1843" [
+label="s1843:{_1: Int; _2: Int} =\l{_1:s1837; _2:s1838}"
+shape=box,color=gray,tooltip="s1843:{_1: Int; _2: Int}"
+]
+"s1840" [
+label="s1840:Int = s1837 + s1838"
+shape=box,color=gray,tooltip="s1840:Int"
+]
+"s1844" [
+label="s1844:{_1: Int; _2: Int} =\l{_1:s1837; _2:s1840}"
+shape=box,color=gray,tooltip="s1844:{_1: Int; _2: Int}"
+]
+"s1888" [
+label="s1888:{_1: Int; _2: Int} =\lif (s1836) s1843 else s1844"
+shape=box,color=gray,tooltip="s1888:{_1: Int; _2: Int}"
+]
+"s1890" [
+label="s1890:Int = s1888._2"
+shape=box,color=gray,tooltip="s1890:Int"
+]
+"s1889" [
+label="s1889:Int = s1888._1"
+shape=box,color=gray,tooltip="s1889:Int"
+]
+{rank=sink; s1835}
+}
+subgraph cluster_s1901 {
+style=dashed; color="#FFCCFF"
+"s1900" [
+label="s1900:{_1: Array[{_1: Int; _2: Int}]; _2: Array[{_1: Int; _2: Int; _3: Boolean}]; _3: Int}"
+color=gray
+]
+"s1901" [
+label="s1901:Struct => Struct =\ls1900 => s1906 = {_1:s1903; _2:s1905}"
+shape=box,color=magenta,tooltip="s1901:Struct => Struct"
+]
+{rank=source; s1900}
+"s1902" [
+label="s1902:Array[{_1: Int; _2: Int}] =\ls1900._1"
+shape=box,color=gray,tooltip="s1902:Array[{_1: Int; _2: Int}]"
+]
+"s1903" [
+label="s1903:Array[Int] =\lArrayMap(s1902, s1896)"
+shape=box,color=gray,tooltip="s1903:Array[Int]"
+]
+"s1904" [
+label="s1904:Array[{_1: Int; _2: Int; _3: Boolean}] =\ls1900._2"
+shape=box,color=gray,tooltip="s1904:Array[{_1: Int; _2: Int; _3: Boolean}]"
+]
+"s1905" [
+label="s1905:Array[Int] =\lArrayMap(s1904, s1835)"
+shape=box,color=gray,tooltip="s1905:Array[Int]"
+]
+{rank=sink; s1901}
+}
+"s1900" -> "s1901" [style=dashed, color=lightgray, weight=0]
+"s1903" -> "s1901" [style=solid]
+"s1905" -> "s1901" [style=solid]
+"s1895" -> "s1896" [style=dashed, color=lightgray, weight=0]
+"s1897" -> "s1896" [style=solid]
+"s1898" -> "s1896" [style=solid]
+"s1836" -> "s1888" [style=solid]
+"s1843" -> "s1888" [style=solid]
+"s1844" -> "s1888" [style=solid]
+"s1834" -> "s1835" [style=dashed, color=lightgray, weight=0]
+"s1890" -> "s1835" [style=solid]
+"s1889" -> "s1835" [style=solid]
+"s1895" -> "s1897" [style=solid]
+"s1895" -> "s1898" [style=solid]
+"s1834" -> "s1837" [style=solid]
+"s1902" -> "s1903" [style=solid]
+"s1896" -> "s1903" [style=solid]
+"s1900" -> "s1904" [style=solid]
+"s1904" -> "s1905" [style=solid]
+"s1835" -> "s1905" [style=solid]
+"s1900" -> "s1902" [style=solid]
+"s1837" -> "s1840" [style=solid]
+"s1838" -> "s1840" [style=solid]
+"s1834" -> "s1836" [style=solid]
+"s1837" -> "s1843" [style=solid]
+"s1838" -> "s1843" [style=solid]
+"s1837" -> "s1844" [style=solid]
+"s1840" -> "s1844" [style=solid]
+"s1888" -> "s1890" [style=solid]
+"s1888" -> "s1889" [style=solid]
+"s1834" -> "s1838" [style=solid]
+}
