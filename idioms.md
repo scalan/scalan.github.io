@@ -1,3 +1,8 @@
+---
+title: Scalan Compilation Framework 
+layout: post
+---
+
 # Scalan Compilation Framework
 
 [![Join the chat at https://gitter.im/scalan/scalan](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/scalan/scalan?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
