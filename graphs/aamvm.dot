@@ -1,0 +1,56 @@
+digraph "aamvm.dot" {
+concentrate=true
+
+subgraph cluster_s3 {
+style=dashed; color="#FFCCFF"
+"s2" [
+label="s2:(AbstractMatrix[Double], AbstractVector[Double])"
+color=gray
+]
+"s3" [
+label="s3:((AbstractMatrix[Double], AbstractVector[Double])) => DenseVector[Double] =\ls2 => s12 = ExpDenseVector(s11)"
+shape=box,color=magenta,tooltip="s3:((AbstractMatrix[Double], AbstractVector[Double])) => DenseVector[Double]"
+]
+{rank=source; s2}
+"s4" [
+label="s4:AbstractMatrix[Double] = s2._1"
+shape=box,color=gray,tooltip="s4:AbstractMatrix[Double]"
+]
+"s7" [
+label="s7:Collection[AbstractVector[Double]] =\ls4.AbstractMatrix.rows()"
+shape=box,color=gray,tooltip="s7:Collection[AbstractVector[Double]]"
+]
+"s5" [
+label="s5:AbstractVector[Double] = s2._2"
+shape=box,color=gray,tooltip="s5:AbstractVector[Double]"
+]
+subgraph cluster_s9 {
+style=dashed; color="#FFCCFF"
+"s8" [
+label="s8:AbstractVector[Double]"
+color=gray
+]
+"s9" [
+label="s9:AbstractVector[Double] => Double =\ls8 => s10 = s8.AbstractVector.dot(s5, scala.math.Numeric$DoubleIsFractional$@6ce90bc5)"
+shape=box,color=magenta,tooltip="s9:AbstractVector[Double] => Double"
+]
+{rank=source; s8}
+{rank=sink; s9}
+}
+"s11" [
+label="s11:Collection[Double] =\ls7.Collection.mapBy(s9, BaseElem{Double})"
+shape=box,color=gray,tooltip="s11:Collection[Double]"
+]
+{rank=sink; s3}
+}
+"s2" -> "s4" [style=solid]
+"s4" -> "s7" [style=solid]
+"s7" -> "s11" [style=solid]
+"s9" -> "s11" [style=solid]
+"s2" -> "s3" [style=dashed, color=lightgray, weight=0]
+"s11" -> "s3" [style=solid]
+"s2" -> "s5" [style=solid]
+"s8" -> "s9" [style=dashed, color=lightgray, weight=0]
+"s8" -> "s9" [style=solid]
+"s5" -> "s9" [style=solid]
+}

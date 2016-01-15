@@ -1,0 +1,56 @@
+digraph "aamvm_2_structs.dot" {
+concentrate=true
+
+subgraph cluster_s68 {
+style=dashed; color="#FFCCFF"
+"s67" [
+label="s67:{_1: AbstractMatrix[Double]; _2: AbstractVector[Double]}"
+color=gray
+]
+"s68" [
+label="s68:Struct => DenseVector[Double] =\ls67 => s76 = ExpDenseVector(s75)"
+shape=box,color=magenta,tooltip="s68:Struct => DenseVector[Double]"
+]
+{rank=source; s67}
+"s69" [
+label="s69:AbstractMatrix[Double] = s67._1"
+shape=box,color=gray,tooltip="s69:AbstractMatrix[Double]"
+]
+"s70" [
+label="s70:Collection[AbstractVector[Double]] =\ls69.AbstractMatrix.rows()"
+shape=box,color=gray,tooltip="s70:Collection[AbstractVector[Double]]"
+]
+"s71" [
+label="s71:AbstractVector[Double] = s67._2"
+shape=box,color=gray,tooltip="s71:AbstractVector[Double]"
+]
+subgraph cluster_s73 {
+style=dashed; color="#FFCCFF"
+"s72" [
+label="s72:AbstractVector[Double]"
+color=gray
+]
+"s73" [
+label="s73:AbstractVector[Double] => Double =\ls72 => s74 = s72.AbstractVector.dot(s71, scala.math.Numeric$DoubleIsFractional$@6ce90bc5)"
+shape=box,color=magenta,tooltip="s73:AbstractVector[Double] => Double"
+]
+{rank=source; s72}
+{rank=sink; s73}
+}
+"s75" [
+label="s75:Collection[Double] =\ls70.Collection.mapBy(s73, BaseElem{Double})"
+shape=box,color=gray,tooltip="s75:Collection[Double]"
+]
+{rank=sink; s68}
+}
+"s72" -> "s73" [style=dashed, color=lightgray, weight=0]
+"s72" -> "s73" [style=solid]
+"s71" -> "s73" [style=solid]
+"s67" -> "s69" [style=solid]
+"s67" -> "s71" [style=solid]
+"s69" -> "s70" [style=solid]
+"s67" -> "s68" [style=dashed, color=lightgray, weight=0]
+"s75" -> "s68" [style=solid]
+"s70" -> "s75" [style=solid]
+"s73" -> "s75" [style=solid]
+}
