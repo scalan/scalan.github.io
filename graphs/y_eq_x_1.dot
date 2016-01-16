@@ -1,0 +1,10 @@
+digraph "graph_s4_8928848862210728323.dot" {
+	graph [concentrate=true];
+	node [label="\N"];
+	graph [bb="0,0,247,108"];
+	s2 [label="s2:Int = Const(10)", shape=box, color=gray, tooltip="s2:Int", pos="59,90", width="1.6443", height="0.5"];
+	s3 [label="s3:Int = Const(1)", shape=box, color=gray, tooltip="s3:Int", pos="192,90", width="1.5402", height="0.5"];
+	s4 [label="s4:Int = s2 + s3", shape=box, color=gray, tooltip="s4:Int", pos="125,18", width="1.4207", height="0.5"];
+	s2 -> s4 [style=solid, pos="e,108.87,36.104 75.315,71.697 83.307,63.22 93.072,52.864 101.82,43.583"];
+	s3 -> s4 [style=solid, pos="e,141.37,36.104 175.44,71.697 167.32,63.22 157.41,52.864 148.53,43.583"];
+}
