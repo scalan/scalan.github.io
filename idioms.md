@@ -240,13 +240,20 @@ scala> calcOpt: ctx.Rep[((Int, (Int, Int))) => Int] = s21
 Which outputs the following graphs for `calc` and `calcOpt` functions
 ![](graphs/rewrite_rule.dot.png)
 
+Method `transform` takes root symbol of the graph and some rewriter and produces a new graph applying the rewriter along
+the way.
+
+```scala
+def transform[A](s: Exp[A], rw: Rewriter = NoRewriting, t: MapTransformer = MapTransformer.Empty): Exp[A]
+```
+
 There are many different ways to define rewriters in Scalan:
 
 - by specifying first-class rules with `postulate`
 - by using Scala's `PartialFunction[Exp[_], Exp[_]]` 
 - by direct implementation of `Rewriter` interface or inheriting from one of the helper classes
 
-Rules can also be associated with compilation phases (see *staged transformation by re-evaluation* idiom).
+Rules can also be associated with compilation phases (see *Staged transformation by re-evaluation* idiom).
 
 <a name="Idiom6"></a> 
 ### Idiom 6: Staged transformation by re-evaluation
