@@ -15,8 +15,33 @@ Scalan is a framework for development of domain-specific compilers in Scala. In 
 based on *staged evaluation*. Visit [Scalan Readme](https://github.com/scalan/scalan/blob/master/README.md) for general
 introduction about Scalan and how to get started.
 
-The following is the introduction to meta-programming idioms available in Scalan.
+The following is the introduction to meta-programming idioms available in Scalan along with example REPL sessions to try
+them yourself.
 
+To run all the RERL examples youself you can use your favorit Scala Console. 
+The examples are tested with SBT Scala console and Scala Console Run Configuration of IntelliJ IDEA 14.x.
+In SBT you may need to switch to scalan-core project like it is shown below.
+
+```
+mybook:~/Projects/scalan/scalan$ sbt
+[info] Loading project definition from /Users/slesarenko/Projects/scalan/scalan/project
+[info] Set current project to scalan (in build file:/Users/slesarenko/Projects/scalan/scalan/)
+> project scalan-core
+[info] Set current project to scalan-core (in build file:/Users/slesarenko/Projects/scalan/scalan/)
+> console
+[info] Starting scala interpreter...
+[info]
+Welcome to Scala version 2.11.7 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_60).
+Type in expressions to have them evaluated.
+Type :help for more information.
+scala> import scalan._
+import scalan._
+scala>
+```
+
+In IDEA run configuration select scalan-core module as shown below
+
+![](graphs/scala_console_run_config.png)
 
 <a name="Idiom1"></a> 
 ### Idiom 1: Staged Evaluation 
@@ -131,6 +156,7 @@ scala> y.show()
 
 Note that during staged evaluation each value of the type `Rep` contains a symbol of the graph instead of data values.
 In a staged context we can visualize any expression as a graph. Showing `y` give us the following graph
+
 ![](graphs/y_eq_x_1.dot.png)
 
 <a name="Idiom4"></a> 
@@ -159,6 +185,7 @@ scala> y: ctx.Rep[Int] = s4
 ```
 
 Which give us the following graph 
+
 ![](graphs/y_eq_x_1.dot.png)
 
 Instances of `Rep[A] => Rep[B]` are ordinary Scala functions from symbols to symbols.
@@ -181,6 +208,7 @@ scala> inc: ctx.Exp[Int => Int] = s4
 scala> y: ctx.Rep[Int] = s7
 ```
 Which give us the following graph 
+
 ![](graphs/inc_x_noinline.dot.png)
 
 The function `mkLambda` *reifies* the given Scala function and is defined as the following
@@ -199,8 +227,8 @@ It works in four steps:
 <a name="Idiom5"></a> 
 ### Idiom 5: Rewrite rules 
 
-Staged evaluation of virtualized code produces a graph-based data structure, step by step adding operations to the
-resulting graph. For each new node added to the graph a set of rewrite rules is exercised for applicability.
+Staged evaluation of virtualized code produces a graph-based data structure, step by step adding operations (as nodes)
+to the resulting graph. For each new node added to the graph a set of rewrite rules is exercised for applicability.
 
 Conceptually, the set of rewrite rules is a partial function, which can optionally replace the symbol into new symbol.
 
@@ -238,10 +266,11 @@ scala> calcOpt: ctx.Rep[((Int, (Int, Int))) => Int] = s21
 ```
 
 Which outputs the following graphs for `calc` and `calcOpt` functions
+
 ![](graphs/rewrite_rule.dot.png)
 
-Method `transform` takes root symbol of the graph and some rewriter and produces a new graph applying the rewriter along
-the way.
+Method `transform` takes the root symbol of the graph and some rewriter and produces a new graph by *staged re-evaluation*
+of the original graph (see [idiom 6](#Idiom6)). It tries to rewrite each node of the new graph.
 
 ```scala
 def transform[A](s: Exp[A], rw: Rewriter = NoRewriting, t: MapTransformer = MapTransformer.Empty): Exp[A]
@@ -253,8 +282,48 @@ There are many different ways to define rewriters in Scalan:
 - by using Scala's `PartialFunction[Exp[_], Exp[_]]` 
 - by direct implementation of `Rewriter` interface or inheriting from one of the helper classes
 
-Rules can also be associated with compilation phases (see *Staged transformation by re-evaluation* idiom).
+Rules can also be associated with compilation phases (see *[Staged transformation by re-evaluation](#Idiom6)* idiom).
+
+
 
 <a name="Idiom6"></a> 
 ### Idiom 6: Staged transformation by re-evaluation
 
+As shown in [Idiom 3](#Idiom3), one way to build graph in Scalan is to execute virtualized code in staged mode (perform
+staged evaluation). Here we consider an alternative. Every graph can be *re-evaluated* or traversed in topoligical order
+visiting nodes with respect to the control-flow and data-flow dependencies.
+
+Each visited node of the original graph is cloned and added under fresh symbol (identifier) to the *sea-of-nodes-like*
+universe of Symbol -> Definition dictionary pairs. The mapping between original and cloned nodes is stored during
+traversal and is used to keep relationship between cloned nodes. This can be thought of as if the original edges are
+also cloned to the edges between the cloned nodes.
+
+It is better illustrated by the following REPL
+
+```scala
+import scalan._
+val ctx = new ScalanDslExp
+import ctx._
+val calc = fun { (in: Rep[(Int, (Int, Int))]) =>
+  val Pair(a, Pair(b, c)) = in
+  a * c + b * c
+}
+
+val calcClone = ProgramGraph.transform(calc, NoRewriting)
+showGraphs(calc, calcClone)
+
+scala> ctx: scalan.ScalanDslExp = scalan.ScalanDslExp@350bbd5d
+scala> import ctx._
+scala> calc: ctx.Rep[((Int, (Int, Int))) => Int] = s3
+scala> calcClone: ctx.Rep[((Int, (Int, Int))) => Int] = s12
+```
+
+Which outputs the following graphs for `calc` and `calcClone` functions
+
+![](graphs/calc_clone_graph.dot.png)
+
+Note, the two graphs are what is called *alpha-equivalent*, they differ only up to renaming of their symbols. Thus,
+`transform` without rewriting (more precisely with `NoRewriting` rewriter) can be considered as identity transformation
+because it produces a new graph, which is alpha-equivalent to the original.
+
+Staged Transformation by re-evaluation idiom allows to implementent [multi-stage compilation pipelines](#Idiom).
