@@ -21,9 +21,9 @@ The following is the introduction to meta-programming idioms available in Scalan
 <a name="Idiom1"></a> 
 ### Idiom 1: Staged Evaluation 
 
-*Staged Evaluation* refers to a special mode of program evaluation (or interpretation). Whereas the standard evaluation
-*aims to produce output data for a given input data, staged evaluation of program `P` produces graph-based intermediate
-*representation of `P`. For example, given a program
+*Staged Evaluation* refers to a special mode of program evaluation (or interpretation). Whereas standard evaluation
+aims to produce output data for given input data, staged evaluation of program `P` produces graph-based intermediate
+representation of `P`. For example, given a program
 
 ```scala
   def mvm(matrix: Matrix[Double], vector: Vector[Double]): Vector[Double] =
@@ -55,8 +55,8 @@ is transformed to
 ```
 
 Historically, Scalan framework is designed to facilitate easy manual code virtualization as much as it is possible using
-standard Scala 2.11 or later compiler. Scalanizer, compiler plugin, allows to automatically virtualize delimited fragment
-of Scala code.
+standard Scala 2.11 or later compiler. Scalanizer, compiler plugin, allows to automatically virtualize delimited
+fragment of Scala code.
 
 Virtualized code brings us to *"`Rep` types"* and *"Reified lambdas"* idioms of Scalan.
 
@@ -76,7 +76,7 @@ In Scalan, during code virtualization, original types (like `Matrix` and `Vector
 type Rep[+T]
 ```
 
-Conside simple example
+Consider simple example
 
 ```scala
 val x: Rep[Int] = 10
