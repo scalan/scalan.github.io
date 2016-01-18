@@ -453,6 +453,29 @@ def tryInvoke: InvokeResult = receiver match {
 }
 ```
 
+Above mentioned `InvokeRewriter` is used in Scalan by default so that method invocation is controlled by
+`isInvokeEnabled` method that can be overriden.
+
+```scala
+import java.lang.reflect.Method
+import scalan._
+import scalan.collections._
+import scalan.linalgebra._
+val ctx = new MatricesDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
+import ctx._
+val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
+  val Pair(items1, items2) = p
+  val v1: Rep[AbstractVector[Double]] = DenseVector(items1)
+  val v2: Rep[AbstractVector[Double]] = DenseVector(items2)
+  v1.dot(v2)
+}
+scala> vvm: ctx.Rep[((ctx.Collection[Double], ctx.Collection[Double])) => Double] = s3
+scala> showGraphs(vvm)
+```
+![](graphs/vvm_1_enable_invoke_all.dot.png)
+
+
+
 <a name="Idiom9"></a> 
 ### Idiom 9: Symbols as Object Proxies 
 
@@ -471,7 +494,7 @@ val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
 }
 ```
 
-For each type `T` which is virtualized as it is described in [Idiom 7](#Idiom7) `BoilerplateTool` generated a special
+For each type `T` which is virtualized as it is described in [Idiom 7](#Idiom7) `BoilerplateTool` generates a special
 implicit conversion. Here is what is generated for `AbstractVector` type.
 
 ```scala
@@ -483,8 +506,9 @@ implicit conversion. Here is what is generated for `AbstractVector` type.
 This implicit conversion wraps each `Rep` typed variable with [dynamic
 proxy](https://docs.oracle.com/javase/8/docs/technotes/guides/reflection/proxy.html) object using the generic method
 `proxyOps`. This means that the `dot` method of proxy is actually called and this call is intercepted by dynamic proxy
-invocation handler. Inside InvocationHandler we have all the data: receiver, method and args array in order to create
-`MethodCall` nodes.
+`InvocationHandler`. Inside `InvocationHandler` we have all the data in order to create `MethodCall` node: receiver,
+method and args array. Created node is added to the graph and associated with a fresh symbol, this symbol is retured as
+the result of the method call.
 
 <a name="Idiom10"></a> 
 ### Idiom 10: Reified Types 

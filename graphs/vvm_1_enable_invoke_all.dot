@@ -1,99 +1,82 @@
-digraph "vvm_1_enable_invoke_all.dot" {
-concentrate=true
-
-subgraph cluster_s20 {
-style=dashed; color="#FFCCFF"
-"s19" [
-label="s19:(Double, Double)"
-color=gray
-]
-"s20" [
-label="s20:((Double, Double)) => Double =\ls19 => s23 = s21 * s22"
-shape=box,color=magenta,tooltip="s20:((Double, Double)) => Double"
-]
-{rank=source; s19}
-"s21" [
-label="s21:Double = s19._1"
-shape=box,color=gray,tooltip="s21:Double"
-]
-"s22" [
-label="s22:Double = s19._2"
-shape=box,color=gray,tooltip="s22:Double"
-]
-{rank=sink; s20}
-}
-subgraph cluster_s27 {
-style=dashed; color="#FFCCFF"
-"s26" [
-label="s26:(Double, Double)"
-color=gray
-]
-"s27" [
-label="s27:((Double, Double)) => Double =\ls26 => s30 = s28 + s29"
-shape=box,color=magenta,tooltip="s27:((Double, Double)) => Double"
-]
-{rank=source; s26}
-"s28" [
-label="s28:Double = s26._1"
-shape=box,color=gray,tooltip="s28:Double"
-]
-"s29" [
-label="s29:Double = s26._2"
-shape=box,color=gray,tooltip="s29:Double"
-]
-{rank=sink; s27}
-}
-"s25" [
-label="s25:Double = Const(0.0)"
-shape=box,color=gray,tooltip="s25:Double"
-]
-subgraph cluster_s12 {
-style=dashed; color="#FFCCFF"
-"s11" [
-label="s11:(Collection[Double], Collection[Double])"
-color=gray
-]
-"s12" [
-label="s12:((Collection[Double], Collection[Double])) => Double =\ls11 => s31 = s24.Collection.reduce(Monoid[Double](+, s25, s27))"
-shape=box,color=magenta,tooltip="s12:((Collection[Double], Collection[Double])) => Double"
-]
-{rank=source; s11}
-"s15" [
-label="s15:Collection[Double] = s11._2"
-shape=box,color=gray,tooltip="s15:Collection[Double]"
-]
-"s13" [
-label="s13:Collection[Double] = s11._1"
-shape=box,color=gray,tooltip="s13:Collection[Double]"
-]
-"s18" [
-label="s18:PairCollection[Double,Double] =\ls15.Collection.zip(s13, BaseElem{Double})"
-shape=box,color=gray,tooltip="s18:PairCollection[Double,Double]"
-]
-"s24" [
-label="s24:Collection[Double] =\ls18.Collection.mapBy(s20, BaseElem{Double})"
-shape=box,color=gray,tooltip="s24:Collection[Double]"
-]
-{rank=sink; s12}
-}
-"s18" -> "s24" [style=solid]
-"s20" -> "s24" [style=solid]
-"s19" -> "s20" [style=dashed, color=lightgray, weight=0]
-"s21" -> "s20" [style=solid]
-"s22" -> "s20" [style=solid]
-"s26" -> "s27" [style=dashed, color=lightgray, weight=0]
-"s28" -> "s27" [style=solid]
-"s29" -> "s27" [style=solid]
-"s11" -> "s13" [style=solid]
-"s11" -> "s12" [style=dashed, color=lightgray, weight=0]
-"s24" -> "s12" [style=solid]
-"s25" -> "s12" [style=solid]
-"s27" -> "s12" [style=solid]
-"s11" -> "s15" [style=solid]
-"s19" -> "s21" [style=solid]
-"s26" -> "s28" [style=solid]
-"s15" -> "s18" [style=solid]
-"s13" -> "s18" [style=solid]
-"s26" -> "s29" [style=solid]
-"s19" -> "s22" [style=solid]
+digraph "graph_s3_8199377588977121904.dot" {
+	graph [concentrate=true];
+	node [label="\N"];
+	graph [bb="0,0,1248,374"];
+	subgraph cluster_s12 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="596,164,914,366"];
+		{
+			graph [rank=source,
+				bb=""];
+			s11 [label="s11:(Double, Double)", color=gray, pos="755,340", width="2.6236", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s12 [label="s12:((Double, Double)) => Double =\ls11 => s15 = s13 * s14", shape=box, color=magenta, tooltip="s12:((Double, Double)) => Double", pos="715,193", width="3.089", height="0.57778"];
+		}
+		s13 [label="s13:Double = s11._1", shape=box, color=gray, tooltip="s13:Double", pos="690,268", width="1.8186", height="0.5"];
+		s14 [label="s14:Double = s11._2", shape=box, color=gray, tooltip="s14:Double", pos="840,268", width="1.8186", height="0.5"];
+		s11 -> s14 [style=solid, pos="e,819.11,286.2 775.14,322.41 785.91,313.54 799.36,302.47 811.21,292.71"];
+		s11 -> s13 [style=solid, pos="e,706.04,286.28 739.27,322.05 731.4,313.58 721.73,303.17 713.04,293.82"];
+		s11 -> s12 [style=dashed, color=lightgray, weight=0, pos="e,656.65,213.64 673.65,330.73 651.05,324.25 628.91,313.08 615,294 603.48,278.2 605.11,266.87 615,250 622.72,236.83 634.79,226.53\
+ 647.91,218.56"];
+		s13 -> s12 [style=solid, pos="e,708.23,213.75 695.92,249.7 698.61,241.86 701.86,232.36 704.91,223.45"];
+		s14 -> s12 [style=solid, pos="e,748.99,213.85 810.69,249.88 794.96,240.7 775.28,229.2 757.86,219.03"];
+	}
+	subgraph cluster_s19 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="922,86,1240,294"];
+		{
+			graph [rank=source,
+				bb=""];
+			s18 [label="s18:(Double, Double)", color=gray, pos="1081,268", width="2.6424", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s19 [label="s19:((Double, Double)) => Double =\ls18 => s22 = s20 + s21", shape=box, color=magenta, tooltip="s19:((Double, Double)) => Double", pos="1041,115", width="3.089", height="0.57778"];
+		}
+		s20 [label="s20:Double = s18._1", shape=box, color=gray, tooltip="s20:Double", pos="1016,193", width="1.8361", height="0.5"];
+		s21 [label="s21:Double = s18._2", shape=box, color=gray, tooltip="s21:Double", pos="1166,193", width="1.8361", height="0.5"];
+		s18 -> s20 [style=solid, pos="e,1031.2,211.09 1065.9,250.07 1057.6,240.74 1047.2,228.99 1038,218.65"];
+		s18 -> s19 [style=dashed, color=lightgray, weight=0, pos="e,973.26,135.72 1007.4,256.55 982.1,249.03 956.29,236.13 941,214 928.37,195.72 929.17,182.81 941,164 946.89,154.64 955.17,147.06\
+ 964.47,140.94"];
+		s20 -> s19 [style=solid, pos="e,1034.5,135.86 1021.7,174.75 1024.5,166.08 1028.1,155.33 1031.3,145.41"];
+		s21 -> s19 [style=solid, pos="e,1073.4,135.68 1137.9,174.94 1121.5,164.94 1100.4,152.12 1082.1,140.99"];
+		s18 -> s21 [style=solid, pos="e,1146.1,211.09 1100.7,250.07 1111.9,240.46 1126.1,228.29 1138.4,217.74"];
+	}
+	subgraph cluster_s3 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="162,8,588,366"];
+		{
+			graph [rank=source,
+				bb=""];
+			s2 [label="s2:(Collection[Double], Collection[Double])", color=gray, pos="375,340", width="5.0937", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s3 [label="s3:((Collection[Double], Collection[Double])) => Double =\ls2 => s23 = s16.Collection.reduce(Monoid[Double](+, s17, s19))", shape=box, color=magenta, tooltip="s3:((Collection[Double], Collection[Double])) => Double", pos="389,37", width="5.2915", height="0.57778"];
+		}
+		s5 [label="s5:Collection[Double] = s2._2", shape=box, color=gray, tooltip="s5:Collection[Double]", pos="283,268", width="2.5836", height="0.5"];
+		s4 [label="s4:Collection[Double] = s2._1", shape=box, color=gray, tooltip="s4:Collection[Double]", pos="487,268", width="2.5836", height="0.5"];
+		s10 [label="s10:PairCollection[Double,Double] =\ls5.Collection.zip(s4, BaseElem{Double})", shape=box, color=gray, tooltip="s10:PairCollection[Double,Double]", pos="412,193", width="3.4796", height="0.57778"];
+		s16 [label="s16:Collection[Double] =\ls10.Collection.mapBy(s12, BaseElem{Double})", shape=box, color=gray, tooltip="s16:Collection[Double]", pos="412,115", width="4.0028", height="0.57778"];
+		s5 -> s10 [style=solid, pos="e,376.92,213.85 313.24,249.88 329.48,240.7 349.79,229.2 367.77,219.03"];
+		s4 -> s10 [style=solid, pos="e,432.3,213.75 469.23,249.7 460.39,241.1 449.51,230.51 439.62,220.88"];
+		s2 -> s4 [style=solid, pos="e,459.75,286.03 402.11,322.05 416.86,312.84 435.29,301.32 451.21,291.37"];
+		s2 -> s3 [style=dashed, color=lightgray, weight=0, pos="e,306.25,57.665 264.98,325.53 227.62,318.53 192.4,308.35 181,294 168.83,278.69 176.69,269.08 181,250 185.44,230.32 244.1,99.61 259\
+,86 269.9,76.045 283.03,68.105 296.72,61.786"];
+		s16 -> s3 [style=solid, pos="e,395,57.835 405.96,94.032 403.5,85.916 400.61,76.371 397.92,67.481"];
+		s2 -> s5 [style=solid, pos="e,305.38,286.03 352.73,322.05 340.95,313.09 326.31,301.96 313.5,292.2"];
+		s10 -> s16 [style=solid, pos="e,412,135.83 412,172.03 412,164.09 412,154.78 412,146.06"];
+	}
+	s17 [label="s17:Double = Const(0.0)", shape=box, color=gray, tooltip="s17:Double", pos="77,115", width="2.1455", height="0.5"];
+	s17 -> s3 [style=solid, pos="e,280.2,57.629 122.94,96.977 134.31,93.082 146.52,89.162 158,86 194.1,76.055 233.87,67.092 270.08,59.678"];
+	s19 -> s3 [style=solid, pos="e,557.44,57.635 929.66,101.02 830.35,89.446 683.2,72.293 567.48,58.804"];
+	s12 -> s16 [style=solid, pos="e,490.36,135.65 636.58,172.33 594.85,161.86 543.4,148.96 500.28,138.14"];
 }
