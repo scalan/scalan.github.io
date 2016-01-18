@@ -1,0 +1,40 @@
+digraph "vvm.dot" {
+concentrate=true
+
+subgraph cluster_s3 {
+style=dashed; color="#FFCCFF"
+"s2" [
+label="s2:(Collection[Double], Collection[Double])"
+color=gray
+]
+"s3" [
+label="s3:((Collection[Double], Collection[Double])) => Double =\ls2 => s10 = s7.DenseVector.dot(s9, scala.math.Numeric$DoubleIsFractional$@67ec8477)"
+shape=box,color=magenta,tooltip="s3:((Collection[Double], Collection[Double])) => Double"
+]
+{rank=source; s2}
+"s4" [
+label="s4:Collection[Double] = s2._1"
+shape=box,color=gray,tooltip="s4:Collection[Double]"
+]
+"s7" [
+label="s7:DenseVector[Double] =\lExpDenseVector(s4)"
+shape=box,color=green,tooltip="s7:DenseVector[Double]"
+]
+"s5" [
+label="s5:Collection[Double] = s2._2"
+shape=box,color=gray,tooltip="s5:Collection[Double]"
+]
+"s9" [
+label="s9:DenseVector[Double] =\lExpDenseVector(s5)"
+shape=box,color=green,tooltip="s9:DenseVector[Double]"
+]
+{rank=sink; s3}
+}
+"s2" -> "s4" [style=solid]
+"s4" -> "s7" [style=solid]
+"s2" -> "s3" [style=dashed, color=lightgray, weight=0]
+"s7" -> "s3" [style=solid]
+"s9" -> "s3" [style=solid]
+"s2" -> "s5" [style=solid]
+"s5" -> "s9" [style=solid]
+}

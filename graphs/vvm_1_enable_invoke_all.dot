@@ -1,0 +1,99 @@
+digraph "vvm_1_enable_invoke_all.dot" {
+concentrate=true
+
+subgraph cluster_s20 {
+style=dashed; color="#FFCCFF"
+"s19" [
+label="s19:(Double, Double)"
+color=gray
+]
+"s20" [
+label="s20:((Double, Double)) => Double =\ls19 => s23 = s21 * s22"
+shape=box,color=magenta,tooltip="s20:((Double, Double)) => Double"
+]
+{rank=source; s19}
+"s21" [
+label="s21:Double = s19._1"
+shape=box,color=gray,tooltip="s21:Double"
+]
+"s22" [
+label="s22:Double = s19._2"
+shape=box,color=gray,tooltip="s22:Double"
+]
+{rank=sink; s20}
+}
+subgraph cluster_s27 {
+style=dashed; color="#FFCCFF"
+"s26" [
+label="s26:(Double, Double)"
+color=gray
+]
+"s27" [
+label="s27:((Double, Double)) => Double =\ls26 => s30 = s28 + s29"
+shape=box,color=magenta,tooltip="s27:((Double, Double)) => Double"
+]
+{rank=source; s26}
+"s28" [
+label="s28:Double = s26._1"
+shape=box,color=gray,tooltip="s28:Double"
+]
+"s29" [
+label="s29:Double = s26._2"
+shape=box,color=gray,tooltip="s29:Double"
+]
+{rank=sink; s27}
+}
+"s25" [
+label="s25:Double = Const(0.0)"
+shape=box,color=gray,tooltip="s25:Double"
+]
+subgraph cluster_s12 {
+style=dashed; color="#FFCCFF"
+"s11" [
+label="s11:(Collection[Double], Collection[Double])"
+color=gray
+]
+"s12" [
+label="s12:((Collection[Double], Collection[Double])) => Double =\ls11 => s31 = s24.Collection.reduce(Monoid[Double](+, s25, s27))"
+shape=box,color=magenta,tooltip="s12:((Collection[Double], Collection[Double])) => Double"
+]
+{rank=source; s11}
+"s15" [
+label="s15:Collection[Double] = s11._2"
+shape=box,color=gray,tooltip="s15:Collection[Double]"
+]
+"s13" [
+label="s13:Collection[Double] = s11._1"
+shape=box,color=gray,tooltip="s13:Collection[Double]"
+]
+"s18" [
+label="s18:PairCollection[Double,Double] =\ls15.Collection.zip(s13, BaseElem{Double})"
+shape=box,color=gray,tooltip="s18:PairCollection[Double,Double]"
+]
+"s24" [
+label="s24:Collection[Double] =\ls18.Collection.mapBy(s20, BaseElem{Double})"
+shape=box,color=gray,tooltip="s24:Collection[Double]"
+]
+{rank=sink; s12}
+}
+"s18" -> "s24" [style=solid]
+"s20" -> "s24" [style=solid]
+"s19" -> "s20" [style=dashed, color=lightgray, weight=0]
+"s21" -> "s20" [style=solid]
+"s22" -> "s20" [style=solid]
+"s26" -> "s27" [style=dashed, color=lightgray, weight=0]
+"s28" -> "s27" [style=solid]
+"s29" -> "s27" [style=solid]
+"s11" -> "s13" [style=solid]
+"s11" -> "s12" [style=dashed, color=lightgray, weight=0]
+"s24" -> "s12" [style=solid]
+"s25" -> "s12" [style=solid]
+"s27" -> "s12" [style=solid]
+"s11" -> "s15" [style=solid]
+"s19" -> "s21" [style=solid]
+"s26" -> "s28" [style=solid]
+"s15" -> "s18" [style=solid]
+"s13" -> "s18" [style=solid]
+"s26" -> "s29" [style=solid]
+"s19" -> "s22" [style=solid]
+}
