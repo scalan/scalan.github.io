@@ -4,13 +4,13 @@
 - [Introduction](#introduction)
 - [Staged Evaluation](#Idiom1)
 - [Virtualized Code](#Idiom2)
-- [Rep types](#Idiom3)
-- [Reified lambdas](#Idiom4)
-- [Rewrite rules](#Idiom5)
-- [Staged transformation by re-evaluation](#Idiom6)
+- [Rep Types](#Idiom3)
+- [Reified Lambdas](#Idiom4)
+- [Rewrite Rules](#Idiom5)
+- [Staged Transformation by Re-evaluation](#Idiom6)
 - [Type Virtualization](#Idiom7)
 - [Virtualized Method Calls](#Idiom8)
-- [Symbols as object proxies](#Idiom9) 
+- [Symbols as Object Proxies](#Idiom9) 
 - [Reified Types](#Idiom10)
 - [First-class Isomorphisms](#Idiom11)
 - [First-class Converters](#Idiom12)
@@ -87,15 +87,15 @@ is transformed to
 ```
 
 Historically, Scalan framework is designed to facilitate easy manual code virtualization as much as it is possible using
-standard Scala 2.11 or later compiler. Scalanizer, compiler plugin, allows to automatically virtualize delimited
+standard Scala 2.11 or later compiler. Scalanizer, compiler plugin, allows to automatically virtualize a delimited
 fragment of Scala code.
 
-Virtualized code brings us to *"`Rep` types"* and *"Reified lambdas"* idioms of Scalan.
+Virtualized code brings us to *"Rep Types"* and *"Reified Lambdas"* idioms.
 
 Related [code]()
 
 <a name="Idiom3"></a> 
-### Idiom 3: Rep types
+### Idiom 3: Rep Types
 
 The technique was originally introduced in [Polymorphic Embedding](http://dl.acm.org/citation.cfm?id=1449935) and later
 developed in [LMS](http://scala-lms.github.io/) staging. It is also known as *lifted embedding* of [Slick
@@ -167,7 +167,7 @@ In a staged context we can visualize any expression as a graph. Showing `y` give
 ![](graphs/y_eq_x_1.dot.png)
 
 <a name="Idiom4"></a> 
-### Idiom 4: Reified lambdas 
+### Idiom 4: Reified Lambdas 
 
 In standard evaluation (when `type Rep[+T] = T`) two type terms `Rep[A] => Rep[B]` and `Rep[A => B]` expand to the same
 type `A => B`, in staged evaluation however (when `type Rep[+T] = Exp[T]`) they expand to different types `Exp[A] =>
@@ -289,18 +289,18 @@ There are many different ways to define rewriters in Scalan:
 - by using Scala's `PartialFunction[Exp[_], Exp[_]]` 
 - by direct implementation of `Rewriter` interface or inheriting from one of the helper classes
 
-Rules can also be associated with compilation phases (see *[Staged transformation by re-evaluation](#Idiom6)* idiom).
+Rules can also be associated with compilation phases (see *[Multi-stage compilation pipeline](#Idiom6)* idiom).
 
 
 
 <a name="Idiom6"></a> 
-### Idiom 6: Staged transformation by re-evaluation
+### Idiom 6: Staged Transformation by Re-evaluation
 
-As shown in [Idiom 3](#Idiom3), one way to build graph in Scalan is to execute virtualized code in staged mode (perform
-staged evaluation). Here we consider an alternative. Every graph can be *re-evaluated* or traversed in topoligical order
-visiting nodes with respect to the data-flow dependencies of IR. This formally connects re-evaluation to the semantics
-of the language and, in a sence, equivalent to staged evaluation of the original code. More formally this is described
-in our [paper]().
+As shown in [Idiom 3](#Idiom3), one way to build a program graph in Scalan is to execute virtualized code of the program
+in staged mode (perform staged evaluation). Here we consider an alternative. Every graph can be *re-evaluated* or
+traversed in topological order, visiting graph nodes with respect to the data-flow dependencies of IR. This formally
+connects re-evaluation to the semantics of the language and, in a sence, equivalent to staged evaluation of the original
+code. More formally this is described in our [paper](http://dl.acm.org/citation.cfm?id=2633632).
 
 Each visited node of the original graph is cloned and added under fresh symbol (identifier) to the *sea-of-nodes-like*
 universe of Symbol -> Definition dictionary pairs. The mapping between original and cloned nodes is stored during
@@ -335,7 +335,7 @@ Note, the two graphs are what is called *alpha-equivalent*, they equal up to ren
 `transform` without rewriting (more precisely with `NoRewriting` rewriter) can be considered as identity transformation
 because it produces a new graph, which is alpha-equivalent to the original.
 
-Staged Transformation by re-evaluation idiom allows to implementent [multi-stage compilation pipeline](#Idiom).
+Staged Transformation by re-evaluation idiom allows to implementent [Multi-stage Compilation Pipeline](#Idiom).
 
 <a name="Idiom7"></a> 
 ### Idiom 7: Type Virtualization 
@@ -354,7 +354,6 @@ case class Interval(start: Int, end: Int) extends Segment {
   def shift(ofs: Int) = new Interval(start + ofs, end + ofs)
 }
 ``` 
-See [source code]()
 
 Its virtualized version is the following
 
@@ -370,6 +369,8 @@ abstract class Interval(val start: Rep[Int], val end: Rep[Int]) extends Segment 
   def shift(ofs: Rep[Int]) = Interval(start + ofs, end + ofs)
 }
 ``` 
+See [source code]([the
+boilerplate](https://github.com/scalan/scalan/blob/master/core/src/test/scala/scalan/common/Segments.scala))
 
 This transformation is systematic and can be performed either manually or by Scalanizer compiler plugin.
 
@@ -403,8 +404,8 @@ val ctx = new MatricesDslExp {}
 import ctx._
 val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
   val Pair(items1, items2) = p
-  val v1 = DenseVector(items1)
-  val v2 = DenseVector(items2)
+  val v1: Rep[AbstractVector[Double]] = DenseVector(items1)
+  val v2: Rep[AbstractVector[Double]] = DenseVector(items2)
   v1.dot(v2)
 }
 showGraphs(vvm)
@@ -453,10 +454,42 @@ def tryInvoke: InvokeResult = receiver match {
 ```
 
 <a name="Idiom9"></a> 
-### Idiom 9: Symbols as object proxies 
+### Idiom 9: Symbols as Object Proxies 
+
+During staged evaluation each variable of the virtualized code has type `Exp[T]` for some `T` and contains a
+symbol of the graph instead of data values (See [Idiom 3](#Idiom3)).
+
+So what does it mean to call the method `dot` on the variable `v1` of type `Rep[AbstractVector[Double]]`? How does Scala
+compiler resolve `dot` method name?
+
+```scala
+val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
+  val Pair(items1, items2) = p
+  val v1: Rep[AbstractVector[Double]] = DenseVector(items1)
+  val v2: Rep[AbstractVector[Double]] = DenseVector(items2)
+  v1.dot(v2)
+}
+```
+
+For each type `T` which is virtualized as it is described in [Idiom 7](#Idiom7) `BoilerplateTool` generated a special
+implicit conversion. Here is what is generated for `AbstractVector` type.
+
+```scala
+  implicit def proxyAbstractVector[T](p: Rep[AbstractVector[T]]): AbstractVector[T] = {
+    proxyOps[AbstractVector[T]](p)(scala.reflect.classTag[AbstractVector[T]])
+  }
+```
+
+This implicit conversion wraps each `Rep` typed variable with [dynamic
+proxy](https://docs.oracle.com/javase/8/docs/technotes/guides/reflection/proxy.html) object using the generic method
+`proxyOps`. This means that the `dot` method of proxy is actually called and this call is intercepted by dynamic proxy
+invocation handler. Inside InvocationHandler we have all the data: receiver, method and args array in order to create
+`MethodCall` nodes.
 
 <a name="Idiom10"></a> 
-### Idiom 10: Symbols as object proxies 
+### Idiom 10: Reified Types 
+
+
 
 <a name="Idiom11"></a> 
 ### Idiom 11:First-class Isomorphisms
