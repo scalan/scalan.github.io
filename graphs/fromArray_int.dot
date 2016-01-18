@@ -1,0 +1,8 @@
+digraph "graph_s4_1707216385501332067.dot" {
+	graph [concentrate=true];
+	node [label="\N"];
+	graph [bb="0,0,222,114"];
+	s2 [label="s2:Array[Int] = Const(Array(1, 2, 3))", shape=box, color=gray, tooltip="s2:Array[Int]", pos="111,96", width="3.0954", height="0.5"];
+	s4 [label="s4:CollectionOverArray[Int] =\lExpCollectionOverArray(s2)", shape=box, color=green, tooltip="s4:CollectionOverArray[Int]", pos="111,21", width="2.5942", height="0.57778"];
+	s2 -> s4 [style=solid, pos="e,111,41.755 111,77.7 111,70.026 111,60.77 111,52.026"];
+}

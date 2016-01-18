@@ -1,0 +1,53 @@
+digraph "graph_s23_3556993579133884197.dot" {
+	graph [concentrate=true];
+	node [label="\N"];
+	graph [bb="0,0,547,358"];
+	subgraph cluster_s8 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="385,220,539,350"];
+		{
+			graph [rank=source,
+				bb=""];
+			s7 [label="s7:(Int, Int)", color=gray, pos="455,324", width="1.5281", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s8 [label="s8:((Int, Int)) => Int =\ls7 => s9 = s7._1", shape=box, color=magenta, tooltip="s8:((Int, Int)) => Int", pos="462,249", width="1.9224", height="0.57778"];
+		}
+		s7 -> s8 [style=dashed, color=lightgray, weight=0, pos="e,460.11,269.75 456.66,305.7 457.4,297.94 458.3,288.57 459.15,279.74"];
+		s7 -> s8 [style=solid];
+	}
+	subgraph cluster_s17 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="8,220,170,350"];
+		{
+			graph [rank=source,
+				bb=""];
+			s16 [label="s16:(Int, Int)", color=gray, pos="82,324", width="1.6507", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s17 [label="s17:((Int, Int)) => Int =\ls16 => s19 = s16._2", shape=box, color=magenta, tooltip="s17:((Int, Int)) => Int", pos="89,249", width="2.0127", height="0.57778"];
+		}
+		s16 -> s17 [style=dashed, color=lightgray, weight=0, pos="e,87.106,269.75 83.659,305.7 84.403,297.94 85.302,288.57 86.148,279.74"];
+		s16 -> s17 [style=solid];
+	}
+	s6 [label="s6:Array[(Int, Int)] =\lConst(Array((1,1), (2,2), (3,3)))", shape=box, color=gray, tooltip="s6:Array[(Int, Int)]", pos="277,249", width="2.6975", height="0.57778"];
+	s11 [label="s11:Array[Int] = ArrayMap(s6, s8)", shape=box, color=gray, tooltip="s11:Array[Int]", pos="391,174", width="2.9167", height="0.5"];
+	s15 [label="s15:CollectionOverArray[Int] =\lExpCollectionOverArray(s11)", shape=box, color=green, tooltip="s15:CollectionOverArray[Int]", pos="386,99", width="2.6984", height="0.57778"];
+	s20 [label="s20:Array[Int] = ArrayMap(s6, s17)", shape=box, color=gray, tooltip="s20:Array[Int]", pos="159,174", width="3.0106", height="0.5"];
+	s21 [label="s21:CollectionOverArray[Int] =\lExpCollectionOverArray(s20)", shape=box, color=green, tooltip="s21:CollectionOverArray[Int]", pos="168,99", width="2.6984", height="0.57778"];
+	s23 [label="s23:PairCollectionSOA[Int,Int] =\lExpPairCollectionSOA(s15, s21)", shape=box, color=green, tooltip="s23:PairCollectionSOA[Int,Int]", pos="277,21", width="2.8163", height="0.57778"];
+	s6 -> s20 [style=solid, pos="e,186.55,192.04 245.07,228.25 229.63,218.7 211.04,207.2 195.1,197.33"];
+	s17 -> s20 [style=solid, pos="e,142.28,192.44 108.13,228.05 116.48,219.35 126.35,209.04 135.17,199.85"];
+	s6 -> s11 [style=solid, pos="e,364.39,192.04 307.85,228.25 322.62,218.79 340.39,207.41 355.7,197.61"];
+	s8 -> s11 [style=solid, pos="e,407.96,192.44 442.6,228.05 434.13,219.35 424.11,209.04 415.17,199.85"];
+	s15 -> s23 [style=solid, pos="e,305.21,41.671 357.65,78.23 344.15,68.818 327.84,57.451 313.44,47.407"];
+	s21 -> s23 [style=solid, pos="e,248.79,41.671 196.35,78.23 209.85,68.818 226.16,57.451 240.56,47.407"];
+	s11 -> s15 [style=solid, pos="e,387.35,119.75 389.82,155.7 389.28,147.94 388.64,138.57 388.04,129.74"];
+	s20 -> s21 [style=solid, pos="e,165.56,119.75 161.13,155.7 162.09,147.94 163.25,138.57 164.33,129.74"];
+}

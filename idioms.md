@@ -513,7 +513,50 @@ the result of the method call.
 <a name="Idiom10"></a> 
 ### Idiom 10: Reified Types 
 
+Scalan supports full type reification in virtualized code. In other words, the virtualized code is augmented to carry
+information about the types of values. Runtime information about elements of type `T` is
+represented by instances of type `Elem[T]` which analogous to `TypeTag` or `Manifest` types of Scala.
 
+Consider the following example
+
+```scala
+  def mvm[T:Numeric](matrix: Matrix[T], vector: Vector[T]): Vector[T] =
+    DenseVector(matrix.rows.mapBy(r => r.dot(vector)))
+```
+
+After its virtualization the method `mvm` will have an additional context bound `Elem`.
+
+```scala
+  def mvm[T:Numeric:Elem](matrix: Rep[Matrix[T]], vector: Rep[Vector[T]]): Rep[Vector[T]] =
+    DenseVector(matrix.rows.mapBy(r => r.dot(vector)))
+```
+
+Type passing style may add additional syntactic noise to the virtualized code, but `Elem` types (as type descriptors)
+facilitate generic (aka polytypic) programming patterns and thus allow development of generic metaprograms. 
+
+```scala
+import scalan._
+import scalan.collections._
+val ctx = new CollectionsDslExp {}
+import ctx._
+def fromArray[T: Elem](arr: Rep[Array[T]]): Coll[T] = implicitly[Elem[T]] match {
+  case e: PairElem[a, b] =>
+    implicit val ea = e.eFst
+    implicit val eb = e.eSnd
+    val pairs = arr.asRep[Array[(a, b)]]
+    val as = fromArray[a](pairs.map { _._1 })
+    val bs = fromArray[b](pairs.map { _._2 })
+    as zip bs
+  case e => CollectionOverArray(arr)
+}
+val arr: Rep[Array[Int]] = Array(1, 2, 3)
+val pairs: Rep[Array[(Int,Int)]] = Array((1,1), (2,2), (3,3))
+showGraphs(fromArray(arr), fromArray(pairs))
+```
+![](graphs/fromArray_pairs_int.dot.png)
+
+Note how the function `fromArray` is recursively defined over the structure of type descriptor and for the two similar
+invocations it produces completely different graphs.
 
 <a name="Idiom11"></a> 
 ### Idiom 11:First-class Isomorphisms
