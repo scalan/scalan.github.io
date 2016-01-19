@@ -642,19 +642,21 @@ One specific implementation of `Iso` (called *representation isomorphism*) is ge
   }
 ```
 
-Representation isomorphisms are an integral part of Scalan's staging infrastructure.  
-
 ```scala
+import java.lang.reflect.Method
 import scalan._
-val ctx = new ScalanDslExp {}
+import scalan.common._
+val ctx = new SegmentsDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
 import ctx._
-val iso = getIsoByElem(element[Interval])
+val iso = isoInterval
 showGraphs(iso.fromFun, iso.toFun)
 ```
 ![](graphs/representation_iso.dot.png)
 
+Representation isomorphisms are an integral part of Scalan's staging infrastructure.  
 Besides representation isomorphisms there are also combinators which can be used to produce new
-isos from existing isos. For example consider this slightly simplified implementation of `IsoUR` for a product type.
+isos from existing isos. For example consider an implementation of `IsoUR` for a product type (see [source
+code](https://github.com/scalan/scalan/blob/master/core/src/main/scala/scalan/Views.scala)).
 
 ```scala
 abstract class PairIso[A1, A2, B1, B2]
@@ -681,9 +683,9 @@ import scalan._
 import scalan.common._
 val ctx = new SegmentsDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
 import ctx._
-val intervalIso = getIsoByElem(element[Interval]).asIso[IntervalData, Interval]
-val sliceIso = getIsoByElem(element[Slice]).asIso[SliceData, Slice]
-val pairs = pairIso(intervalIso, sliceIso)
+val interval = isoInterval // method generated in boilerplate for each virtualized class  
+val slice = isoSlice 
+val pairs = pairIso(interval, slice)
 val flatten = getStructWrapperIso(pairs.eFrom) 
 val iso = flatten >> pairs
 showGraphs(iso.fromFun, iso.toFun)
