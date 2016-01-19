@@ -1,0 +1,50 @@
+digraph "graph_s10_s15_8460192609728641010.dot" {
+	graph [concentrate=true];
+	node [label="\N"];
+	graph [bb="0,0,673,218"];
+	subgraph cluster_s10 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="8,8,390,210"];
+		{
+			graph [rank=source,
+				bb=""];
+			s9 [label="s9:Interval", color=green, pos="210,184", width="1.4491", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s10 [label="s10:Interval => (Int, Int) =\ls9 => s13 = (s11, s12)", color=magenta, shape=box, tooltip="s10:Interval => (Int, Int)", pos="209,37", width="2.2811", height="0.57778"];
+		}
+		s11 [label="s11:Int = s9.Interval.start()", color=gray, shape=box, tooltip="s11:Int", pos="119,112", width="2.2894", height="0.5"];
+		s12 [label="s12:Int = s9.Interval.end()", color=gray, shape=box, tooltip="s12:Int", pos="301,112", width="2.2521", height="0.5"];
+		s9 -> s10 [style=dashed, color=lightgray, weight=0, pos="e,126.67,50.039 163.28,175.94 114.68,167.53 43.393,151.81 27,130 -3.5242,89.381 57.37,65.391 116.78,52.151"];
+		s11 -> s10 [style=solid, pos="e,184.64,57.755 140.33,93.7 151.14,84.93 164.5,74.093 176.56,64.316"];
+		s12 -> s10 [style=solid, pos="e,233.9,57.755 279.2,93.7 268.04,84.846 254.22,73.885 241.81,64.034"];
+		s9 -> s11 [style=solid, pos="e,141.16,130.04 189.35,167.12 177.56,158.05 162.57,146.51 149.45,136.42"];
+		s9 -> s12 [style=solid, pos="e,278.84,130.04 230.65,167.12 242.44,158.05 257.43,146.51 270.55,136.42"];
+	}
+	subgraph cluster_s15 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="398,8,665,210"];
+		{
+			graph [rank=source,
+				bb=""];
+			s14 [label="s14:(Int, Int)", color=gray, pos="538,184", width="1.6507", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s15 [label="s15:((Int, Int)) => Interval =\ls14 => s19 = ExpInterval(s16, s17)", color=magenta, shape=box, tooltip="s15:((Int, Int)) => Interval", pos="531,37", width="2.9575", height="0.57778"];
+		}
+		s16 [label="s16:Int = s14._1", color=gray, shape=box, tooltip="s16:Int", pos="479,112", width="1.4773", height="0.5"];
+		s17 [label="s17:Int = s14._2", color=gray, shape=box, tooltip="s17:Int", pos="604,112", width="1.4773", height="0.5"];
+		s14 -> s17 [style=solid, pos="e,587.55,130.45 553.64,166.41 561.7,157.86 571.7,147.26 580.65,137.77"];
+		s14 -> s15 [style=dashed, color=lightgray, weight=0, pos="e,460.81,57.704 487.39,174.33 461.67,167.09 432.62,153.9 417,130 408.25,116.61 408.54,107.58 417,94 425.32,80.643 437.86,70.381 \
+451.62,62.526"];
+		s16 -> s15 [style=solid, pos="e,516.93,57.755 491.32,93.7 497.21,85.436 504.4,75.337 511.04,66.018"];
+		s17 -> s15 [style=solid, pos="e,550.75,57.755 586.7,93.7 578.1,85.099 567.51,74.509 557.88,64.881"];
+		s14 -> s16 [style=solid, pos="e,493.71,130.45 524.02,166.41 516.95,158.03 508.23,147.68 500.35,138.33"];
+	}
+}

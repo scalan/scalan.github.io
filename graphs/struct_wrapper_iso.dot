@@ -1,0 +1,81 @@
+digraph "graph_s24_s56_3750942124867795775.dot" {
+	graph [concentrate=true];
+	node [label="\N"];
+	graph [bb="0,0,1238,362"];
+	subgraph cluster_s24 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="8,8,615,354"];
+		{
+			graph [rank=source,
+				bb=""];
+			s23 [label="s23:((Int, (Long, Double)), (String, Boolean))", color=gray, pos="312,328", width="5.2015", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s24 [label="s24:(((Int, (Long, Double)), (String, Boolean))) => Struct =\ls23 => s49 = {_1:s27; _2:s29; _3:s30; _4:s33; _5:s34}", color=magenta, shape=box, tooltip="s24:(((Int, (Long, Double)), (String, Boolean))) => Struct", pos="314,37", width="4.8388", height="0.57778"];
+		}
+		s25 [label="s25:(Int, (Long, Double)) = s23._1", color=gray, shape=box, tooltip="s25:(Int, (Long, Double))", pos="250,256", width="2.9177", height="0.5"];
+		s27 [label="s27:Int = s25._1", color=gray, shape=box, tooltip="s27:Int", pos="89,184", width="1.4773", height="0.5"];
+		s28 [label="s28:(Long, Double) = s25._2", color=gray, shape=box, tooltip="s28:(Long, Double)", pos="250,184", width="2.4741", height="0.5"];
+		s29 [label="s29:Long = s28._1", color=gray, shape=box, tooltip="s29:Long", pos="96,112", width="1.6718", height="0.5"];
+		s30 [label="s30:Double = s28._2", color=gray, shape=box, tooltip="s30:Double", pos="241,112", width="1.8361", height="0.5"];
+		s26 [label="s26:(String, Boolean) = s23._2", color=gray, shape=box, tooltip="s26:(String, Boolean)", pos="451,184", width="2.6138", height="0.5"];
+		s33 [label="s33:String = s26._1", color=gray, shape=box, tooltip="s33:String", pos="388,112", width="1.732", height="0.5"];
+		s34 [label="s34:Boolean = s26._2", color=gray, shape=box, tooltip="s34:Boolean", pos="538,112", width="1.9016", height="0.5"];
+		s23 -> s24 [style=dashed, color=lightgray, weight=0, pos="212.4,312.67 146.87,297.39 66.22,266.05 27,202 6.2129,168.05 0.4104,149.18 17,113;e,153.4,57.654 17,111 20.609,103.01 19.845,99.064\
+ 27,94 47.201,79.703 93.645,68.174 143.41,59.377"];
+		s27 -> s24 [style=solid, pos="50.338,165.76 28.366,153.23 7.0455,134.71 17,113"];
+		s29 -> s24 [style=solid, pos="e,255.36,57.635 146.84,93.977 176.25,84.126 213.66,71.599 245.63,60.894"];
+		s30 -> s24 [style=solid, pos="e,294.25,57.755 258.3,93.7 266.9,85.099 277.49,74.509 287.12,64.881"];
+		s33 -> s24 [style=solid, pos="e,334.03,57.755 370.46,93.7 361.74,85.099 351.01,74.509 341.25,64.881"];
+		s34 -> s24 [style=solid, pos="e,374.25,57.635 485.76,93.977 455.41,84.084 416.77,71.491 383.83,60.755"];
+		s25 -> s27 [style=solid, pos="e,128.26,202.07 210.61,237.88 188.61,228.31 160.99,216.3 137.64,206.15"];
+		s26 -> s33 [style=solid, pos="e,403.39,130.1 435.43,165.7 427.8,157.22 418.48,146.86 410.12,137.58"];
+		s25 -> s28 [style=solid, pos="e,250,202.1 250,237.7 250,229.98 250,220.71 250,212.11"];
+		s23 -> s26 [style=solid, pos="e,434.33,202.07 328.87,309.82 339.05,299.45 352.27,285.97 364,274 385.43,252.12 409.8,227.18 427.29,209.28"];
+		s26 -> s34 [style=solid, pos="e,516.74,130.1 472.51,165.7 483.46,156.88 496.95,146.03 508.82,136.47"];
+		s28 -> s29 [style=solid, pos="e,133.55,130.07 212.33,165.88 191.37,156.35 165.1,144.41 142.82,134.28"];
+		s23 -> s25 [style=solid, pos="e,265.3,274.28 296.99,310.05 289.49,301.58 280.26,291.17 271.98,281.82"];
+		s28 -> s30 [style=solid, pos="e,243.2,130.1 247.78,165.7 246.78,157.98 245.59,148.71 244.49,140.11"];
+	}
+	subgraph cluster_s56 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="623,8,1230,354"];
+		{
+			graph [rank=source,
+				bb=""];
+			s55 [label="s55:{_1: Int; _2: Long; _3: Double; _4: String; _5: Boolean}", color=gray, pos="926,328", width="6.818", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s56 [label="s56:Struct => ((Int, (Long, Double)), (String, Boolean)) =\ls55 => s90 = (s82, s89)", color=magenta, shape=box, tooltip="s56:Struct => ((Int, (Long, Double)), (String, Boolean))", pos="940,37", width="4.7046", height="0.57778"];
+		}
+		s57 [label="s57:Int = s55._1", color=gray, shape=box, tooltip="s57:Int", pos="704,184", width="1.4773", height="0.5"];
+		s58 [label="s58:Long = s55._2", color=gray, shape=box, tooltip="s58:Long", pos="711,256", width="1.6718", height="0.5"];
+		s59 [label="s59:Double = s55._3", color=gray, shape=box, tooltip="s59:Double", pos="856,256", width="1.8361", height="0.5"];
+		s81 [label="s81:(Long, Double) = (s58, s59)", color=gray, shape=box, tooltip="s81:(Long, Double)", pos="874,184", width="2.726", height="0.5"];
+		s82 [label="s82:(Int, (Long, Double)) = (s57, s81)", color=gray, shape=box, tooltip="s82:(Int, (Long, Double))", pos="874,112", width="3.1696", height="0.5"];
+		s60 [label="s60:String = s55._4", color=gray, shape=box, tooltip="s60:String", pos="1003,256", width="1.732", height="0.5"];
+		s61 [label="s61:Boolean = s55._5", color=gray, shape=box, tooltip="s61:Boolean", pos="1153,256", width="1.9016", height="0.5"];
+		s89 [label="s89:(String, Boolean) = (s60, s61)", color=gray, shape=box, tooltip="s89:(String, Boolean)", pos="1094,184", width="2.8657", height="0.5"];
+		s55 -> s61 [style=solid, pos="e,1097.6,274.08 979.8,310.41 1012.1,300.44 1053.5,287.68 1087.7,277.13"];
+		s58 -> s81 [style=solid, pos="e,834.26,202.07 750.87,237.88 773.16,228.31 801.12,216.3 824.76,206.15"];
+		s59 -> s81 [style=solid, pos="e,869.6,202.1 860.45,237.7 862.45,229.9 864.87,220.51 867.1,211.83"];
+		s55 -> s60 [style=solid, pos="e,984.19,274.1 945.03,309.7 954.54,301.05 966.21,290.45 976.57,281.03"];
+		s55 -> s56 [style=dashed, color=lightgray, weight=0, pos="792.71,312.81 731.38,304.17 666.79,291.39 642,274 634.82,268.97 635.68,264.96 632,257;e,812.72,57.61 632,255 615.28,218.88 621.21\
+,199.95 642,166 676.54,109.59 742.13,78.003 802.99,60.329"];
+		s82 -> s56 [style=solid, pos="e,922.14,57.755 889.64,93.7 897.26,85.268 906.62,74.924 915.18,65.449"];
+		s89 -> s56 [style=solid, pos="e,961.2,57.962 1075.7,165.8 1049.3,140.9 1000.1,94.585 968.76,65.078"];
+		s60 -> s89 [style=solid, pos="e,1071.8,202.1 1025.5,237.7 1037,228.88 1051.1,218.03 1063.5,208.47"];
+		s61 -> s89 [style=solid, pos="e,1108.4,202.1 1138.4,237.7 1131.3,229.3 1122.7,219.07 1115,209.86"];
+		s55 -> s59 [style=solid, pos="e,873.1,274.1 908.7,309.7 900.14,301.14 889.66,290.66 880.3,281.3"];
+		s55 -> s58 [style=solid, pos="e,763.33,274.04 874.78,310.32 844.27,300.39 805.35,287.72 773.1,277.22"];
+		s57 -> s82 [style=solid, pos="e,832.55,130.07 745.59,165.88 769.03,156.22 798.5,144.09 823.3,133.88"];
+		s81 -> s82 [style=solid, pos="e,874,130.1 874,165.7 874,157.98 874,148.71 874,140.11"];
+		s55 -> s57 [style=solid, pos="e,665.29,202.26 632,255 623.3,236.2 638.18,219.78 656.63,207.57"];
+	}
+}

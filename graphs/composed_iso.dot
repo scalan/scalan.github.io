@@ -1,0 +1,71 @@
+digraph "graph_s25_s50_8858216923220111690.dot" {
+	graph [concentrate=true];
+	node [label="\N"];
+	graph [bb="0,0,1299,368"];
+	subgraph cluster_s25 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="8,86,766,360"];
+		{
+			graph [rank=source,
+				bb=""];
+			s24 [label="s24:(Interval, Slice)", color=gray, pos="402,334", width="2.4268", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s25 [label="s25:((Interval, Slice)) => Struct =\ls24 => s44 = {_1:s28; _2:s29; _3:s31; _4:s32}", color=magenta, shape=box, tooltip="s25:((Interval, Slice)) => Struct", pos="402,115", width="3.844", height="0.57778"];
+		}
+		s26 [label="s26:Interval = s24._1", color=green, shape=box, tooltip="s26:Interval", pos="312,262", width="1.8661", height="0.5"];
+		s28 [label="s28:Int = s26.Interval.start()", color=gray, shape=box, tooltip="s28:Int", pos="123,190", width="2.3972", height="0.5"];
+		s29 [label="s29:Int = s26.Interval.end()", color=gray, shape=box, tooltip="s29:Int", pos="312,190", width="2.3424", height="0.5"];
+		s27 [label="s27:Slice = s24._2", color=green, shape=box, tooltip="s27:Slice", pos="493,262", width="1.647", height="0.5"];
+		s31 [label="s31:Int = s27.Slice.start()", color=gray, shape=box, tooltip="s31:Int", pos="493,190", width="2.1782", height="0.5"];
+		s32 [label="s32:Int = s27.Slice.length()", color=gray, shape=box, tooltip="s32:Int", pos="674,190", width="2.3371", height="0.5"];
+		s27 -> s32 [style=solid, pos="e,629.87,208.07 537.28,243.88 562.35,234.18 593.9,221.98 620.37,211.74"];
+		s24 -> s27 [style=solid, pos="e,470.64,280.2 423.57,316.41 435.21,307.46 449.77,296.25 462.55,286.42"];
+		s26 -> s28 [style=solid, pos="e,169.08,208.07 265.77,243.88 239.47,234.14 206.36,221.87 178.64,211.61"];
+		s24 -> s26 [style=solid, pos="e,334.12,280.2 380.67,316.41 369.16,307.46 354.76,296.25 342.12,286.42"];
+		s27 -> s31 [style=solid, pos="e,493,208.1 493,243.7 493,235.98 493,226.71 493,218.11"];
+		s26 -> s29 [style=solid, pos="e,312,208.1 312,243.7 312,235.98 312,226.71 312,218.11"];
+		s24 -> s25 [style=dashed, color=lightgray, weight=0, pos="e,263.78,118.34 322.02,326.69 187.6,313.16 -60.762,273.84 27,172 56.459,137.81 161.93,124.18 253.54,118.9"];
+		s28 -> s25 [style=solid, pos="e,326.96,135.64 188.06,171.98 226.52,161.91 275.66,149.06 317.14,138.2"];
+		s29 -> s25 [style=solid, pos="e,377.64,135.75 333.33,171.7 344.14,162.93 357.5,152.09 369.56,142.32"];
+		s31 -> s25 [style=solid, pos="e,426.63,135.75 471.43,171.7 460.4,162.85 446.73,151.88 434.45,142.03"];
+		s32 -> s25 [style=solid, pos="e,475.16,135.64 610.57,171.98 573.16,161.94 525.38,149.11 484.99,138.27"];
+	}
+	subgraph cluster_s50 {
+		graph [style=dashed,
+			color="#FFCCFF",
+			bb="774,8,1291,360"];
+		{
+			graph [rank=source,
+				bb=""];
+			s49 [label="s49:{_1: Int; _2: Int; _3: Int; _4: Int}", color=gray, pos="1042,334", width="4.2586", height="0.5"];
+		}
+		{
+			graph [rank=sink,
+				bb=""];
+			s50 [label="s50:Struct => (Interval, Slice) =\ls49 => s77 = PairView(s71)", color=magenta, shape=box, tooltip="s50:Struct => (Interval, Slice)", pos="1042,37", width="2.7001", height="0.57778"];
+		}
+		s51 [label="s51:Int = s49._1", color=gray, shape=box, tooltip="s51:Int", pos="855,262", width="1.4773", height="0.5"];
+		s52 [label="s52:Int = s49._2", color=gray, shape=box, tooltip="s52:Int", pos="980,262", width="1.4773", height="0.5"];
+		s66 [label="s66:(Int, Int) = (s51, s52)", color=gray, shape=box, tooltip="s66:(Int, Int)", pos="955,190", width="2.1728", height="0.5"];
+		s53 [label="s53:Int = s49._3", color=gray, shape=box, tooltip="s53:Int", pos="1105,262", width="1.4773", height="0.5"];
+		s54 [label="s54:Int = s49._4", color=gray, shape=box, tooltip="s54:Int", pos="1230,262", width="1.4773", height="0.5"];
+		s70 [label="s70:(Int, Int) = (s53, s54)", color=gray, shape=box, tooltip="s70:(Int, Int)", pos="1130,190", width="2.1728", height="0.5"];
+		s71 [label="s71:((Int, Int), (Int, Int)) =\l(s66, s70)", color=gray, shape=box, tooltip="s71:((Int, Int), (Int, Int))", pos="1042,115", width="2.2355", height="0.57778"];
+		s49 -> s52 [style=solid, pos="e,995.3,280.28 1027,316.05 1019.5,307.58 1010.3,297.17 1002,287.82"];
+		s51 -> s66 [style=solid, pos="e,930.44,208.19 879.46,243.88 892.3,234.89 908.2,223.76 922.09,214.03"];
+		s52 -> s66 [style=solid, pos="e,961.11,208.1 973.82,243.7 971,235.81 967.61,226.3 964.48,217.55"];
+		s49 -> s51 [style=solid, pos="e,900.52,280.04 998.16,316.59 971.89,306.76 938.26,294.17 910.19,283.66"];
+		s49 -> s53 [style=solid, pos="e,1089.5,280.28 1057.3,316.05 1064.9,307.58 1074.2,297.17 1082.7,287.82"];
+		s66 -> s71 [style=solid, pos="e,1018.5,135.75 975.62,171.7 986.07,162.93 998.98,152.09 1010.6,142.32"];
+		s70 -> s71 [style=solid, pos="e,1065.8,135.75 1109.1,171.7 1098.6,162.93 1085.5,152.09 1073.7,142.32"];
+		s53 -> s70 [style=solid, pos="e,1123.9,208.1 1111.2,243.7 1114,235.81 1117.4,226.3 1120.5,217.55"];
+		s54 -> s70 [style=solid, pos="e,1154.6,208.19 1205.5,243.88 1192.7,234.89 1176.8,223.76 1162.9,214.03"];
+		s49 -> s54 [style=solid, pos="e,1184.2,280.04 1086.1,316.59 1112.5,306.76 1146.3,294.17 1174.5,283.66"];
+		s49 -> s50 [style=dashed, color=lightgray, weight=0, pos="e,992.31,57.714 925.42,322.25 869.2,314.4 810.24,301.3 793,280 721.86,192.12 888.62,103.11 982.87,61.799"];
+		s71 -> s50 [style=solid, pos="e,1042,57.835 1042,94.032 1042,86.09 1042,76.781 1042,68.056"];
+	}
+}

@@ -289,7 +289,7 @@ There are many different ways to define rewriters in Scalan:
 - by using Scala's `PartialFunction[Exp[_], Exp[_]]` 
 - by direct implementation of `Rewriter` interface or inheriting from one of the helper classes
 
-Rules can also be associated with compilation phases (see *[Multi-stage compilation pipeline](#Idiom6)* idiom).
+Rules can also be associated with compilation phases (see *[Multi-stage compilation pipeline](#Idiom???)* idiom).
 
 
 
@@ -335,7 +335,7 @@ Note, the two graphs are what is called *alpha-equivalent*, they equal up to ren
 `transform` without rewriting (more precisely with `NoRewriting` rewriter) can be considered as identity transformation
 because it produces a new graph, which is alpha-equivalent to the original.
 
-Staged Transformation by re-evaluation idiom allows to implementent [Multi-stage Compilation Pipeline](#Idiom).
+Staged Transformation by re-evaluation idiom allows to implementent [Multi-stage Compilation Pipeline](#Idiom???).
 
 <a name="Idiom7"></a> 
 ### Idiom 7: Type Virtualization 
@@ -369,8 +369,7 @@ abstract class Interval(val start: Rep[Int], val end: Rep[Int]) extends Segment 
   def shift(ofs: Rep[Int]) = Interval(start + ofs, end + ofs)
 }
 ``` 
-See [source code]([the
-boilerplate](https://github.com/scalan/scalan/blob/master/core/src/test/scala/scalan/common/Segments.scala))
+See [source code](https://github.com/scalan/scalan/blob/master/core/src/test/scala/scalan/common/Segments.scala)
 
 This transformation is systematic and can be performed either manually or by Scalanizer compiler plugin.
 
@@ -388,7 +387,7 @@ With some limitations, type virtualization works for a rather rich subset of Sca
 (polymorphic) types and high-kind type parameters.
 
 Moreover, type virtualization is also used by the Scalan framework internally to implement [First-class
-Isomorphisms](#Idiom10) and [First-class Converters](#Idiom11).
+Isomorphisms](#Idiom11) and [First-class Converters](#Idiom12).
 
 <a name="Idiom8"></a> 
 ### Idiom 8: Virtualized Method Calls
@@ -404,8 +403,8 @@ val ctx = new MatricesDslExp {}
 import ctx._
 val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
   val Pair(items1, items2) = p
-  val v1: Rep[AbstractVector[Double]] = DenseVector(items1)
-  val v2: Rep[AbstractVector[Double]] = DenseVector(items2)
+  val v1: Rep[Vector[Double]] = DenseVector(items1)
+  val v2: Rep[Vector[Double]] = DenseVector(items2)
   v1.dot(v2)
 }
 showGraphs(vvm)
@@ -427,18 +426,18 @@ We can implement actual invocation of delayed method calls, for example, by defi
 ```scala
 object InvokeRewriter extends Rewriter {
   def apply[T](x: Exp[T]): Exp[T] = x match {
-    case Def(call: MethodCall) =>
+    case Def(call: MethodCall) => // extract definition for a given symbol and check it is MethodCall
       call.tryInvoke match {
         case InvokeSuccess(res) => res.asRep[T]
-          case _ => x
-        }
+        case _ => x
+      }
     case _ => x
   }
 }
 ```
 
 In this code the logic behind `tryInvoke` is the following (see [source
-code](https://github.com/scalan/scalan/blob/master/core/src/main/scala/scalan/Proxy.scala`) for more details)
+code](https://github.com/scalan/scalan/blob/master/core/src/main/scala/scalan/Proxy.scala) for more details)
 
 ```scala
 def tryInvoke: InvokeResult = receiver match {
@@ -446,15 +445,28 @@ def tryInvoke: InvokeResult = receiver match {
     try {
       InvokeSuccess(method.invoke(d, args: _*).asInstanceOf[Exp[_]])
     } catch {
-      case e: Exception =>
-        InvokeFailure(baseCause(e))
+      case e: Exception => InvokeFailure(baseCause(e))
     }
   case _ => InvokeImpossible
 }
 ```
 
 Above mentioned `InvokeRewriter` is used in Scalan by default so that method invocation is controlled by
-`isInvokeEnabled` method that can be overriden.
+`isInvokeEnabled` method that can be overriden. The method `dot` is shown below 
+
+```scala
+abstract class DenseVector[T](val items: Rep[Collection[T]])(implicit val eT: Elem[T])
+  extends Vector[T] {
+  def dot(other: Rep[Vector[T]])(implicit n: Numeric[T]): Rep[T] = other match {
+    case SparseVector(nonZeroIndicesL, nonZeroValuesL, _) =>
+      (items(nonZeroIndicesL) zip nonZeroValuesL).map { case Pair(v1, v2) => v1 * v2 }.reduce
+    case _ =>
+      (other.items zip items).map { case Pair(v1, v2) => v1 * v2 }.reduce
+  }
+}
+```
+
+In the following example the function `vvm` is reified in the context when invocation is enabled for all method calls.
 
 ```scala
 import java.lang.reflect.Method
@@ -465,8 +477,8 @@ val ctx = new MatricesDslExp { override def isInvokeEnabled(d: Def[_], m: Method
 import ctx._
 val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
   val Pair(items1, items2) = p
-  val v1: Rep[AbstractVector[Double]] = DenseVector(items1)
-  val v2: Rep[AbstractVector[Double]] = DenseVector(items2)
+  val v1: Rep[Vector[Double]] = DenseVector(items1)
+  val v2: Rep[Vector[Double]] = DenseVector(items2)
   v1.dot(v2)
 }
 scala> vvm: ctx.Rep[((ctx.Collection[Double], ctx.Collection[Double])) => Double] = s3
@@ -482,24 +494,24 @@ scala> showGraphs(vvm)
 During staged evaluation each variable of the virtualized code has type `Exp[T]` for some `T` and contains a
 symbol of the graph instead of data values (See [Idiom 3](#Idiom3)).
 
-So what does it mean to call the method `dot` on the variable `v1` of type `Rep[AbstractVector[Double]]`? How does Scala
+So what does it mean to call the method `dot` on the variable `v1` of type `Rep[Vector[Double]]`? How does Scala
 compiler resolve `dot` method name?
 
 ```scala
 val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
   val Pair(items1, items2) = p
-  val v1: Rep[AbstractVector[Double]] = DenseVector(items1)
-  val v2: Rep[AbstractVector[Double]] = DenseVector(items2)
+  val v1: Rep[Vector[Double]] = DenseVector(items1)
+  val v2: Rep[Vector[Double]] = DenseVector(items2)
   v1.dot(v2)
 }
 ```
 
 For each type `T` which is virtualized as it is described in [Idiom 7](#Idiom7) `BoilerplateTool` generates a special
-implicit conversion. Here is what is generated for `AbstractVector` type.
+implicit conversion. Here is what is generated for `Vector` type.
 
 ```scala
-  implicit def proxyAbstractVector[T](p: Rep[AbstractVector[T]]): AbstractVector[T] = {
-    proxyOps[AbstractVector[T]](p)(scala.reflect.classTag[AbstractVector[T]])
+  implicit def proxyVector[T](p: Rep[Vector[T]]): Vector[T] = {
+    proxyOps[Vector[T]](p)(scala.reflect.classTag[Vector[T]])
   }
 ```
 
@@ -532,7 +544,7 @@ After its virtualization the method `mvm` will have an additional context bound 
 ```
 
 Type passing style may add additional syntactic noise to the virtualized code, but `Elem` types (as type descriptors)
-facilitate generic (aka polytypic) programming patterns and thus allow development of generic metaprograms. 
+facilitate generic (aka polytypic) programming patterns and thus allow development of generic meta-programs. 
 
 ```scala
 import scalan._
@@ -559,8 +571,172 @@ Note how the function `fromArray` is recursively defined over the structure of t
 invocations it produces completely different graphs.
 
 <a name="Idiom11"></a> 
-### Idiom 11:First-class Isomorphisms
+### Idiom 11: First-class Isomorphisms
+
+Isomorphism in Scalan is a special abstraction to capture bijective correspondence between two types. It is defined by
+the following virtualized trait.
+
+```scala
+trait IsoUR[From,To] extends Def[IsoUR[From,To]]{
+  def eFrom: Elem[From] 
+  def eTo: Elem[To]
+  def from(p: Rep[To]): Rep[From]
+  def to(p: Rep[From]): Rep[To] 
+}
+```
+
+As any virtualized type, IsoUR requires boilerplate code to be generated. This means that isomorphisms are treated as
+first-class citizens during staged evaluation. In particular they can be generated as any other functions.
+
+```scala
+import java.lang.reflect.Method
+import scalan._
+val ctx = new ScalanDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
+import ctx._
+val iso = getStructWrapperIso(element[((Int, (Long, Double)), (String, Boolean))])
+showGraphs(iso.fromFun, iso.toFun)
+scala> iso: ctx.Exp[ctx.IsoUR[_$33,((Int, Double), String)]] forSome { type _$33 } = s15
+```
+![](graphs/struct_wrapper_iso.dot.png)
+
+Note: value `iso` has expression type and thus it is a symbol of some graph node. Method `getStructWrapperIso` is generic
+and works for any type descriptor. It builds an isomorphism between given type and some corresponding flat structure (tuple).
+
+One more example
+
+```scala
+import java.lang.reflect.Method
+import scalan._
+val ctx = new ScalanDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
+import ctx._
+val iso = getStructWrapperIso(element[(Array[(Long, Double)], (String, Boolean))])
+showGraphs(iso.fromFun, iso.toFun)
+```
+![](graphs/struct_wrapper_iso_array.dot.png)
+
+Many different implementations of `IsoUR` are defined in Scalan and each `IsoUR` instance is a node of the IR. 
+
+Consider concrete implementation of virtualized type `Segment`
+
+```scala
+abstract class Interval(val start: Rep[Int], val end: Rep[Int]) extends Segment {
+  def length = end - start
+  def shift(ofs: Rep[Int]) = Interval(start + ofs, end + ofs)
+}
+```
+
+One specific implementation of `Iso` (called *representation isomorphism*) is generated in boilerplate
+
+```scala
+  type IntervalData = (Int, Int)
+  class IntervalIso extends EntityIso[IntervalData, Interval] with Def[IntervalIso] {
+    override def from(p: Rep[Interval]) =
+      (p.start, p.end)
+    override def to(p: Rep[(Int, Int)]) = {
+      val Pair(start, end) = p
+      Interval(start, end)
+    }
+    lazy val eFrom = pairElement(element[Int], element[Int])
+    lazy val eTo = new IntervalElem(self)
+    lazy val selfType = new IntervalIsoElem
+  }
+```
+
+Representation isomorphisms are an integral part of Scalan's staging infrastructure.  
+
+```scala
+import scalan._
+val ctx = new ScalanDslExp {}
+import ctx._
+val iso = getIsoByElem(element[Interval])
+showGraphs(iso.fromFun, iso.toFun)
+```
+![](graphs/representation_iso.dot.png)
+
+Besides representation isomorphisms there are also combinators which can be used to produce new
+isos from existing isos. For example consider this slightly simplified implementation of `IsoUR` for a product type.
+
+```scala
+abstract class PairIso[A1, A2, B1, B2]
+    (val iso1: Iso[A1, B1], val iso2: Iso[A2, B2])
+    (implicit val eA1: Elem[A1], val eA2: Elem[A2], val eB1: Elem[B1], val eB2: Elem[B2])
+  extends IsoUR[(A1, A2), (B1, B2)] {
+  lazy val eFrom: Elem[(A1, A2)] = element[(A1, A2)]
+  lazy val eTo: Elem[(B1, B2)] = element[(B1, B2)]
+
+  def from(b: Rep[(B1, B2)]) = {
+    Pair(iso1.from(b._1), iso2.from(b._2))
+  }
+  def to(a: Rep[(A1, A2)]) = {
+    Pair(iso1.to(a._1), iso2.to(a._2))
+  }
+}
+```
+
+In Scalan isomorphisms can be composed in many different ways.
+
+```scala
+import java.lang.reflect.Method
+import scalan._
+import scalan.common._
+val ctx = new SegmentsDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
+import ctx._
+val intervalIso = getIsoByElem(element[Interval]).asIso[IntervalData, Interval]
+val sliceIso = getIsoByElem(element[Slice]).asIso[SliceData, Slice]
+val pairs = pairIso(intervalIso, sliceIso)
+val flatten = getStructWrapperIso(pairs.eFrom) 
+val iso = flatten >> pairs
+showGraphs(iso.fromFun, iso.toFun)
+```
+![](graphs/composed_iso.dot.png)
+
 
 <a name="Idiom12"></a> 
 ### Idiom 12: First-class Converters
 
+<!--\emph{Convertibility} is a property of abstract classes and concrete implementation classes. It is -->
+<!--mentioned in~\cite[p.~40]{Slesarenko2014Scalan} and implemented in Scalan by introducing the-->
+<!--\lst{Converter} data type shown in Figure~\ref{fig:converter}.-->
+<!--\begin{figure}[h]-->
+<!--\vspace{-0.5em}-->
+<!--\begin{lstlisting}-->
+<!--type Conv[T,R] = Rep[Converter[T,R]]-->
+<!--trait Converter[T,R] -->
+  <!--extends Reifiable[Converter[T,R]] {-->
+  <!--def eT: Elem[T]-->
+  <!--def eR: Elem[R]-->
+  <!--def convFun: Rep[T => R]-->
+  <!--def apply(x: Rep[T]): Rep[R] }-->
+<!--def hasConverter[A,B](-->
+    <!--eA: Elem[A], eB: Elem[B]): Option[Conv[A,B]] -->
+<!--\end{lstlisting}-->
+<!--\vspace{-0.5em}-->
+<!--\caption{First-class converters}-->
+<!--\label{fig:converter}-->
+<!--\end{figure}-->
+
+<!--Function \lst{hasConverter} is also provided by Scalan to generate converter (if it is possible)-->
+<!--between any two data types given by descriptors. Converters as first-class objects are also added as-->
+<!--nodes to the graph and thus unified using $\alpha$-equivalence of \lst{convFun}.-->
+<!--Generation of converters in Scalan is very easy in many practical cases, the idea is based on-->
+<!--semantics of staged evaluation. For example, converter from \lst{Matr} to \lst{DenseMatr} is defined-->
+<!--in boilerplate as the following function (see~\cite[p.~40]{Slesarenko2014Scalan} for definition when-->
+<!--converters exist and also cf. Figure~\ref{fig:stagedinvoke} for method invocation).-->
+
+<!--\vspace{-0.5em}-->
+<!--\begin{lstlisting}-->
+<!--def toDenseMatr[T](x: Rep[Matr[T]]) = -->
+  <!--DenseMatr(x.rows) // rows - virtual method call!-->
+<!--val c = new Converter(fun {sm: Rep[SparseMatr] => -->
+  <!--toDenseMatr(sm) // ok since SparseMatr <: Matr-->
+<!--})-->
+<!--\end{lstlisting}-->
+<!--\vspace{-0.5em}-->
+
+<!--Conversion in the opposite direction is trivial because \lst{DenseMatr} $<:$ \lst{Matr} and-->
+<!--conversion is just an assignment.-->
+
+<!--Thus if we want to generate converter from \lst{SparseMatr} to \lst{DenseMatr} we construct it-->
+<!--like shown above\footnote{Hint: consult~\cite[p.~42,44]{Slesarenko2014Scalan} for semantics of staged-->
+<!--evaluation of the method call \lst{x.rows} in \lst{toDenseMatr} when \lst{x} is of type-->
+<!--\lst{SparseMatr}}.-->
