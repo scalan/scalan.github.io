@@ -873,10 +873,10 @@ import scalan.linalgebra._
 class Ctx extends MatricesDslExp { override def invokeAll = true }
 val ctx = new Ctx
 import ctx._
-val Some(c) = hasConverter(element[SparseVector[Double]], element[DenseVector[Double]])
-val sparseData2denseData = fun { data: Rep[SparseVectorData[Double]] =>
-  val v = SparseVector(data)
-  c(v).toData
+val Some(c) = hasConverter(element[Array[SparseVector[Double]]], element[Array[DenseVector[Double]]])
+val sparseData2denseData = fun { data: Rep[Array[SparseVectorData[Double]]] =>
+  val vs = data.map(SparseVector(_))
+  c(vs).map(_.toData)
 }
 showGraphs(sparseData2denseData)
 ```    
