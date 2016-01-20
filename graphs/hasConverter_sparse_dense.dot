@@ -1,0 +1,87 @@
+digraph "hasConverter_sparse_dense.dot" {
+concentrate=true
+
+"s91" [
+label="s91:Double = Const(0.0)"
+shape=box,color=gray,tooltip="s91:Double"
+]
+subgraph cluster_s131 {
+style=dashed; color="#FFCCFF"
+"s130" [
+label="s130:(Collection[Int], (Collection[Double], Int))"
+color=gray
+]
+"s131" [
+label="s131:((Collection[Int], (Collection[Double], Int))) => Array[Double] =\ls130 => s145 = ArrayUpdateMany(s141, s143, s144)"
+shape=box,color=magenta,tooltip="s131:((Collection[Int], (Collection[Double], Int))) => Array[Double]"
+]
+{rank=source; s130}
+"s133" [
+label="s133:(Collection[Double], Int) = s130._2"
+shape=box,color=gray,tooltip="s133:(Collection[Double], Int)"
+]
+"s135" [
+label="s135:Int = s133._2"
+shape=box,color=gray,tooltip="s135:Int"
+]
+"s141" [
+label="s141:Array[Double] =\lArrayReplicate(s135, s91)"
+shape=box,color=gray,tooltip="s141:Array[Double]"
+]
+"s132" [
+label="s132:Collection[Int] = s130._1"
+shape=box,color=gray,tooltip="s132:Collection[Int]"
+]
+"s143" [
+label="s143:Array[Int] = s132.Collection.arr()"
+shape=box,color=gray,tooltip="s143:Array[Int]"
+]
+"s134" [
+label="s134:Collection[Double] = s133._1"
+shape=box,color=gray,tooltip="s134:Collection[Double]"
+]
+"s144" [
+label="s144:Array[Double] =\ls134.Collection.arr()"
+shape=box,color=gray,tooltip="s144:Array[Double]"
+]
+{rank=sink; s131}
+}
+"s96" [
+label="s96:CollectionOverArrayIso[Double] =\lArray[Double] <-> CollectionOverArray[Double]"
+shape=box,color=gray,tooltip="s96:CollectionOverArrayIso[Double]"
+]
+subgraph cluster_s20 {
+style=dashed; color="#FFCCFF"
+"s19" [
+label="s19:Array[(Collection[Int], (Collection[Double], Int))]"
+color=gray
+]
+"s20" [
+label="s20:Array[(Collection[Int], (Collection[Double], Int))] => Array[CollectionOverArray[Double]] =\ls19 => s151 = ViewArray[CollectionOverArray[Double]](s148)"
+shape=box,color=magenta,tooltip="s20:Array[(Collection[Int], (Collection[Double], Int))] => Array[CollectionOverArray[Double]]"
+]
+{rank=source; s19}
+"s148" [
+label="s148:Array[Array[Double]] =\lArrayMap(s19, s131)"
+shape=box,color=gray,tooltip="s148:Array[Array[Double]]"
+]
+{rank=sink; s20}
+}
+"s135" -> "s141" [style=solid]
+"s91" -> "s141" [style=solid]
+"s130" -> "s131" [style=dashed, color=lightgray, weight=0]
+"s141" -> "s131" [style=solid]
+"s143" -> "s131" [style=solid]
+"s144" -> "s131" [style=solid]
+"s19" -> "s20" [style=dashed, color=lightgray, weight=0]
+"s148" -> "s20" [style=solid]
+"s96" -> "s20" [style=solid]
+"s134" -> "s144" [style=solid]
+"s132" -> "s143" [style=solid]
+"s19" -> "s148" [style=solid]
+"s131" -> "s148" [style=solid]
+"s130" -> "s133" [style=solid]
+"s133" -> "s134" [style=solid]
+"s133" -> "s135" [style=solid]
+"s130" -> "s132" [style=solid]
+}

@@ -715,10 +715,7 @@ showGraphs(iso.fromFun, iso.toFun)
 ```
 ![](graphs/composed_iso.dot.png)
 
-<a name="Idiom12"></a> 
-### Idiom 12: First-class Converters
-
-In Scalan it is possible to write generic function, which automatically generates converters between different
+One of the applications of isomorphisms automatic generation of converters between different
 implementations of the same abstract data type. Consider conversion between `SparseVector` and `DenseVector`.
 
 ```scala
@@ -778,48 +775,110 @@ showGraphs(sparseData2denseData)
 
 It is easy to recognize which converstion algorithm is represented by the constructed graph.
 
-  <!--class SparseVectorCompanionAbs extends CompanionDef[SparseVectorCompanionAbs] with SparseVectorCompanion {-->
-    <!--def selfType = SparseVectorCompanionElem-->
-    <!--override def toString = "SparseVector"-->
-    <!--def apply[T](p: Rep[SparseVectorData[T]])(implicit eT: Elem[T]): Rep[SparseVector[T]] =-->
-      <!--isoSparseVector(eT).to(p)-->
-    <!--def apply[T](nonZeroIndices: Rep[Collection[Int]], nonZeroValues: Rep[Collection[T]], length: Rep[Int])(implicit eT: Elem[T]): Rep[SparseVector[T]] =-->
-      <!--mkSparseVector(nonZeroIndices, nonZeroValues, length)-->
+<a name="Idiom12"></a> 
+### Idiom 12: First-class Converters
 
-    <!--def unapply[T](p: Rep[Vector[T]]) = unmkSparseVector(p)-->
-  <!--}-->
+The function like `sparseData2denseData` can be generated automatically for two virtualized classes if they are
+different implementations of the same trait, provided an additional requirement is satisfied. 
 
-<!--```scala-->
-<!--type Conv[T,R] = Rep[Converter[T,R]]-->
-<!--trait Converter[T,R] extends Def[Converter[T,R]] {-->
-  <!--def eT: Elem[T]-->
-  <!--def eR: Elem[R]-->
-  <!--def convFun: Rep[T => R]-->
-  <!--def apply(x: Rep[T]): Rep[R] -->
-<!--}-->
-<!--```-->
- <!---->
-<!--```scala-->
-<!--def hasConverter[A,B](eA: Elem[A], eB: Elem[B]): Option[Conv[A,B]] -->
-<!--```-->
+Consider the following function
 
-<!--Function \lst{hasConverter} is implemented in Scalan to generate converter (if it is possible)-->
-<!--between any two data types given by descriptors. Converters as first-class objects are also added as-->
-<!--nodes to the graph. -->
+```scala
+val vector2dense = fun { v: Rep[Vector[Double]] =>
+  DenseVector(v.items)
+}
+```
 
-<!--Generation of converters in Scalan is very easy in many practical cases, the idea is based on-->
-<!--semantics of staged evaluation. For example, converter from Vector to \lst{DenseMatr} is defined-->
-<!--in boilerplate as the following function-->
+It performs conversion from any `Vector` to `DenseVector`. In particular is we apply it to `SparseVector` and
+`ConstVector` we can generate required converters.
 
-<!--def toDenseMatr[T](x: Rep[Matr[T]]) = -->
-  <!--DenseMatr(x.rows) // rows - virtual method call!-->
-  <!---->
-<!--val c = new Converter(fun {sm: Rep[SparseMatr] => -->
-  <!--toDenseMatr(sm) // ok since SparseMatr <: Matr-->
-<!--})-->
+```scala
+import scalan._
+import scalan.linalgebra._
+class Ctx extends MatricesDslExp { override def invokeAll = true }
+val ctx = new Ctx
+import ctx._
+val vector2dense = fun { v: Rep[Vector[Double]] =>
+  DenseVector(v.items)
+}
+val sparseData2denseData = fun { data: Rep[SparseVectorData[Double]] =>
+  val v = SparseVector(data)
+  vector2dense(v).toData
+}
+val constData2denseData = fun { data: Rep[ConstVectorData[Double]] =>
+  val v = ConstVector(data)
+  vector2dense(v).toData
+}
+showGraphs(sparseData2denseData, constData2denseData)
+```
+![](graphs/two_converters.dot.png)
 
-<!--Conversion in the opposite direction is trivial because \lst{DenseMatr} $<:$ \lst{Matr} and-->
-<!--conversion is just an assignment.-->
+However, attempt to write converter to `ConstVector` fails
+
+```scala
+import scalan._
+import scalan.linalgebra._
+class Ctx extends MatricesDslExp { override def invokeAll = true }
+val ctx = new Ctx
+import ctx._
+val vector2const = fun { v: Rep[Vector[Double]] =>
+  DenseVector(v.item, v.length)
+}
+scala> <console>:33: error: value item is not a member of ctx.Rep[ctx.Vector[Double]]
+         ConstVector(v.item, v.length)
+                       ^
+```
+
+The problem is that the class `ConstVector` doesn't satisfy *convertibility requirement*.
+
+*Class `A` is convertable with abstract trait `B` if any parameter of the primary constructor of `A` implements some
+parameterless method defined in `B`*.
+
+For example the constructor of the class `ConstVector` has the parameter `item`, but there is no such method defined in
+the trait `Vector`. 
+
+It is remarkable that if classes `A` and `C` are both convertable with trait `B` then they are *mutually convertable*.
+For example classes `SparseVector` and `DenseVector` are mutually convertible. Convertibility of a particular class is a
+domain-specific property and cannot be infered in general non-domain-specific case.
+
+Because non-trivial converters between classes can be generated automatically and convertibility property can be easily
+recognized, Scalan provides a generic function which can generate a converter (if it is possible) between any two types
+given by descriptors.
+
+```scala
+def hasConverter[A,B](eA: Elem[A], eB: Elem[B]): Option[Conv[A,B]] 
+```
+
+where `Conv` is defined as the following
+
+```scala
+type Conv[T,R] = Rep[Converter[T,R]]
+trait Converter[T,R] extends Def[Converter[T,R]] {
+  def eT: Elem[T]
+  def eR: Elem[R]
+  def convFun: Rep[T => R]
+  def apply(x: Rep[T]): Rep[R] 
+}
+```
+
+Note, that converters are defined as virtualized types and thus first-class in Scalan framework and are also added as
+nodes to the graph. 
 
 
+The following example illustrates the first-class nature of the converters
 
+```scala
+import scalan._
+import scalan.linalgebra._
+class Ctx extends MatricesDslExp { override def invokeAll = true }
+val ctx = new Ctx
+import ctx._
+val Some(c) = hasConverter(element[SparseVector[Double]], element[DenseVector[Double]])
+val sparseData2denseData = fun { data: Rep[SparseVectorData[Double]] =>
+  val v = SparseVector(data)
+  c(v).toData
+}
+showGraphs(sparseData2denseData)
+```    
+![](graphs/hasConverter_sparse_dense.dot.png)
+ 

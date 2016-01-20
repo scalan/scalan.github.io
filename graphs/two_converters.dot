@@ -1,0 +1,97 @@
+digraph "two_converters.dot" {
+concentrate=true
+
+"s18" [
+label="s18:Double = Const(0.0)"
+shape=box,color=gray,tooltip="s18:Double"
+]
+subgraph cluster_s9 {
+style=dashed; color="#FFCCFF"
+"s8" [
+label="s8:(Collection[Int], (Collection[Double], Int))"
+color=gray
+]
+"s9" [
+label="s9:((Collection[Int], (Collection[Double], Int))) => CollectionOverArray[Double] =\ls8 => s32 = ExpCollectionOverArray(s28)"
+shape=box,color=magenta,tooltip="s9:((Collection[Int], (Collection[Double], Int))) => CollectionOverArray[Double]"
+]
+{rank=source; s8}
+"s13" [
+label="s13:(Collection[Double], Int) = s8._2"
+shape=box,color=gray,tooltip="s13:(Collection[Double], Int)"
+]
+"s15" [
+label="s15:Int = s13._2"
+shape=box,color=gray,tooltip="s15:Int"
+]
+"s20" [
+label="s20:Array[Double] =\lArrayReplicate(s15, s18)"
+shape=box,color=gray,tooltip="s20:Array[Double]"
+]
+"s12" [
+label="s12:Collection[Int] = s8._1"
+shape=box,color=gray,tooltip="s12:Collection[Int]"
+]
+"s26" [
+label="s26:Array[Int] = s12.Collection.arr()"
+shape=box,color=gray,tooltip="s26:Array[Int]"
+]
+"s14" [
+label="s14:Collection[Double] = s13._1"
+shape=box,color=gray,tooltip="s14:Collection[Double]"
+]
+"s27" [
+label="s27:Array[Double] = s14.Collection.arr()"
+shape=box,color=gray,tooltip="s27:Array[Double]"
+]
+"s28" [
+label="s28:Array[Double] =\lArrayUpdateMany(s20, s26, s27)"
+shape=box,color=gray,tooltip="s28:Array[Double]"
+]
+{rank=sink; s9}
+}
+subgraph cluster_s35 {
+style=dashed; color="#FFCCFF"
+"s34" [
+label="s34:(Double, Int)"
+color=gray
+]
+"s35" [
+label="s35:((Double, Int)) => CollectionOverArray[Double] =\ls34 => s42 = ExpCollectionOverArray(s41)"
+shape=box,color=magenta,tooltip="s35:((Double, Int)) => CollectionOverArray[Double]"
+]
+{rank=source; s34}
+"s39" [
+label="s39:Int = s34._2"
+shape=box,color=gray,tooltip="s39:Int"
+]
+"s38" [
+label="s38:Double = s34._1"
+shape=box,color=gray,tooltip="s38:Double"
+]
+"s41" [
+label="s41:Array[Double] =\lArrayReplicate(s39, s38)"
+shape=box,color=gray,tooltip="s41:Array[Double]"
+]
+{rank=sink; s35}
+}
+"s13" -> "s14" [style=solid]
+"s34" -> "s39" [style=solid]
+"s34" -> "s35" [style=dashed, color=lightgray, weight=0]
+"s41" -> "s35" [style=solid]
+"s15" -> "s20" [style=solid]
+"s18" -> "s20" [style=solid]
+"s14" -> "s27" [style=solid]
+"s8" -> "s13" [style=solid]
+"s8" -> "s12" [style=solid]
+"s13" -> "s15" [style=solid]
+"s34" -> "s38" [style=solid]
+"s8" -> "s9" [style=dashed, color=lightgray, weight=0]
+"s28" -> "s9" [style=solid]
+"s39" -> "s41" [style=solid]
+"s38" -> "s41" [style=solid]
+"s20" -> "s28" [style=solid]
+"s26" -> "s28" [style=solid]
+"s27" -> "s28" [style=solid]
+"s12" -> "s26" [style=solid]
+}
