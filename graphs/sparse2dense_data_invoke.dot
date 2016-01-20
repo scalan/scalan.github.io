@@ -1,0 +1,66 @@
+digraph "sparse2dense_data_invoke.dot" {
+concentrate=true
+
+"s13" [
+label="s13:Double = Const(0.0)"
+shape=box,color=gray,tooltip="s13:Double"
+]
+subgraph cluster_s3 {
+style=dashed; color="#FFCCFF"
+"s2" [
+label="s2:(Collection[Int], (Collection[Double], Int))"
+color=gray
+]
+"s3" [
+label="s3:((Collection[Int], (Collection[Double], Int))) => CollectionOverArray[Double] =\ls2 => s27 = ExpCollectionOverArray(s23)"
+shape=box,color=magenta,tooltip="s3:((Collection[Int], (Collection[Double], Int))) => CollectionOverArray[Double]"
+]
+{rank=source; s2}
+"s7" [
+label="s7:(Collection[Double], Int) = s2._2"
+shape=box,color=gray,tooltip="s7:(Collection[Double], Int)"
+]
+"s9" [
+label="s9:Int = s7._2"
+shape=box,color=gray,tooltip="s9:Int"
+]
+"s15" [
+label="s15:Array[Double] =\lArrayReplicate(s9, s13)"
+shape=box,color=gray,tooltip="s15:Array[Double]"
+]
+"s6" [
+label="s6:Collection[Int] = s2._1"
+shape=box,color=gray,tooltip="s6:Collection[Int]"
+]
+"s21" [
+label="s21:Array[Int] = s6.Collection.arr()"
+shape=box,color=gray,tooltip="s21:Array[Int]"
+]
+"s8" [
+label="s8:Collection[Double] = s7._1"
+shape=box,color=gray,tooltip="s8:Collection[Double]"
+]
+"s22" [
+label="s22:Array[Double] = s8.Collection.arr()"
+shape=box,color=gray,tooltip="s22:Array[Double]"
+]
+"s23" [
+label="s23:Array[Double] =\lArrayUpdateMany(s15, s21, s22)"
+shape=box,color=gray,tooltip="s23:Array[Double]"
+]
+{rank=sink; s3}
+}
+"s2" -> "s6" [style=solid]
+"s2" -> "s7" [style=solid]
+"s2" -> "s3" [style=dashed, color=lightgray, weight=0]
+"s23" -> "s3" [style=solid]
+"s15" -> "s23" [style=solid]
+"s21" -> "s23" [style=solid]
+"s22" -> "s23" [style=solid]
+"s9" -> "s15" [style=solid]
+"s13" -> "s15" [style=solid]
+"s7" -> "s8" [style=solid]
+"s7" -> "s9" [style=solid]
+"s6" -> "s21" [style=solid]
+"s8" -> "s22" [style=solid]
+}

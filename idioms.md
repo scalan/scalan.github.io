@@ -473,7 +473,7 @@ import java.lang.reflect.Method
 import scalan._
 import scalan.collections._
 import scalan.linalgebra._
-val ctx = new MatricesDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
+val ctx = new MatricesDslExp { override def isInvokeEnabled(d: Def[_], m: Method) = true }
 import ctx._
 val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
   val Pair(items1, items2) = p
@@ -481,8 +481,7 @@ val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
   val v2: Rep[Vector[Double]] = DenseVector(items2)
   v1.dot(v2)
 }
-scala> vvm: ctx.Rep[((ctx.Collection[Double], ctx.Collection[Double])) => Double] = s3
-scala> showGraphs(vvm)
+showGraphs(vvm)
 ```
 ![](graphs/vvm_1_enable_invoke_all.dot.png)
 
@@ -490,6 +489,30 @@ scala> showGraphs(vvm)
 
 <a name="Idiom9"></a> 
 ### Idiom 9: Symbols as Object Proxies 
+
+```scala
+import scalan._
+import scalan.linalgebra._
+class Ctx extends TestContext with MatricesDslExp
+val ctx = new Ctx
+import ctx._
+val sparse2dense = fun { v: Rep[SparseVector[Double]] =>
+  DenseVector(v.items)
+}
+showGraphs(sparse2dense)
+```
+
+```scala
+import scalan._
+import scalan.linalgebra._
+class Ctx extends TestContext with MatricesDslExp { }
+val ctx = new Ctx
+import ctx._
+def sparseData2denseData = fun { data: Rep[SparseVectorData[Double]] =>
+  val v = SparseVector(data)
+  DenseVector(v.items).toData
+}
+```
 
 During staged evaluation each variable of the virtualized code has type `Exp[T]` for some `T` and contains a
 symbol of the graph instead of data values (See [Idiom 3](#Idiom3)).
@@ -591,7 +614,7 @@ first-class citizens during staged evaluation. In particular they can be generat
 ```scala
 import java.lang.reflect.Method
 import scalan._
-val ctx = new ScalanDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
+val ctx = new ScalanDslExp { override def isInvokeEnabled(d: Def[_], m: Method) = true }
 import ctx._
 val iso = getStructWrapperIso(element[((Int, (Long, Double)), (String, Boolean))])
 showGraphs(iso.fromFun, iso.toFun)
@@ -602,12 +625,12 @@ scala> iso: ctx.Exp[ctx.IsoUR[_$33,((Int, Double), String)]] forSome { type _$33
 Note: value `iso` has expression type and thus it is a symbol of some graph node. Method `getStructWrapperIso` is generic
 and works for any type descriptor. It builds an isomorphism between given type and some corresponding flat structure (tuple).
 
-One more example
+Another example
 
 ```scala
 import java.lang.reflect.Method
 import scalan._
-val ctx = new ScalanDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
+val ctx = new ScalanDslExp { override def isInvokeEnabled(d: Def[_], m: Method) = true }
 import ctx._
 val iso = getStructWrapperIso(element[(Array[(Long, Double)], (String, Boolean))])
 showGraphs(iso.fromFun, iso.toFun)
@@ -646,7 +669,7 @@ One specific implementation of `Iso` (called *representation isomorphism*) is ge
 import java.lang.reflect.Method
 import scalan._
 import scalan.common._
-val ctx = new SegmentsDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
+val ctx = new SegmentsDslExp { override def isInvokeEnabled(d: Def[_], m: Method) = true }
 import ctx._
 val iso = isoInterval
 showGraphs(iso.fromFun, iso.toFun)
@@ -681,7 +704,7 @@ In Scalan isomorphisms can be composed in many different ways.
 import java.lang.reflect.Method
 import scalan._
 import scalan.common._
-val ctx = new SegmentsDslExp { override def isInvokeEnabled(d: Def[_], m: Method)  = true }
+val ctx = new SegmentsDslExp { override def isInvokeEnabled(d: Def[_], m: Method) = true }
 import ctx._
 val interval = isoInterval // method generated in boilerplate for each virtualized class  
 val slice = isoSlice 
@@ -692,53 +715,111 @@ showGraphs(iso.fromFun, iso.toFun)
 ```
 ![](graphs/composed_iso.dot.png)
 
-
 <a name="Idiom12"></a> 
 ### Idiom 12: First-class Converters
 
-<!--\emph{Convertibility} is a property of abstract classes and concrete implementation classes. It is -->
-<!--mentioned in~\cite[p.~40]{Slesarenko2014Scalan} and implemented in Scalan by introducing the-->
-<!--\lst{Converter} data type shown in Figure~\ref{fig:converter}.-->
-<!--\begin{figure}[h]-->
-<!--\vspace{-0.5em}-->
-<!--\begin{lstlisting}-->
+In Scalan it is possible to write generic function, which automatically generates converters between different
+implementations of the same abstract data type. Consider conversion between `SparseVector` and `DenseVector`.
+
+```scala
+import scalan._
+import scalan.linalgebra._
+class Ctx extends MatricesDslExp { override def invokeAll = true }
+val ctx = new Ctx
+import ctx._
+val sparse2dense = fun { v: Rep[SparseVector[Double]] =>
+  DenseVector(v.items)
+}
+showGraphs(sparse2dense)
+```
+![](graphs/sparse2dense_vector.dot.png)
+
+Even though invocation of all the methods is requested, the method `items` cannot be performed, because `v` is lambda
+bound variable and the corresponding symbol doesn't have definition, thus there is no object whose method we can call
+(see [Idiom 8](#Idiom8)).
+
+However, we can construct `SparseVector` object from *sparse row data format* then perform conversion to `DenseVector`
+object and then request *dense row data format*. This dataflow graph is constructed in the following example
+
+```scala
+import scalan._
+import scalan.linalgebra._
+class Ctx extends MatricesDslExp { override def invokeAll = false }
+val ctx = new Ctx
+import ctx._
+def sparseData2denseData = fun { data: Rep[SparseVectorData[Double]] =>
+  val v = SparseVector(data)
+  DenseVector(v.items).toData
+}
+showGraphs(sparseData2denseData)
+```
+![](graphs/sparse2dense_data_noInvoke.dot.png)
+
+Note, that creation of an instance is implemented by applying the method `to` of the representation iso associated with
+`SparseVector` virtualized class (see [Idiom 11](#Idiom11)) and to extract the data from an object the method `from` is
+called from the corresponding (maybe different iso class).
+
+In this graph, method calls of `to` and `from` methods can be executed, thus if we request execution of all method
+calls, the same source code will result in generation of different graph.
+
+```scala
+import scalan._
+import scalan.linalgebra._
+class Ctx extends MatricesDslExp { override def invokeAll = true }
+val ctx = new Ctx
+import ctx._
+def sparseData2denseData = fun { data: Rep[SparseVectorData[Double]] =>
+  val v = SparseVector(data)
+  DenseVector(v.items).toData
+}
+showGraphs(sparseData2denseData)
+```
+![](graphs/sparse2dense_data_invoke.dot.png)
+
+It is easy to recognize which converstion algorithm is represented by the constructed graph.
+
+  <!--class SparseVectorCompanionAbs extends CompanionDef[SparseVectorCompanionAbs] with SparseVectorCompanion {-->
+    <!--def selfType = SparseVectorCompanionElem-->
+    <!--override def toString = "SparseVector"-->
+    <!--def apply[T](p: Rep[SparseVectorData[T]])(implicit eT: Elem[T]): Rep[SparseVector[T]] =-->
+      <!--isoSparseVector(eT).to(p)-->
+    <!--def apply[T](nonZeroIndices: Rep[Collection[Int]], nonZeroValues: Rep[Collection[T]], length: Rep[Int])(implicit eT: Elem[T]): Rep[SparseVector[T]] =-->
+      <!--mkSparseVector(nonZeroIndices, nonZeroValues, length)-->
+
+    <!--def unapply[T](p: Rep[Vector[T]]) = unmkSparseVector(p)-->
+  <!--}-->
+
+<!--```scala-->
 <!--type Conv[T,R] = Rep[Converter[T,R]]-->
-<!--trait Converter[T,R] -->
-  <!--extends Reifiable[Converter[T,R]] {-->
+<!--trait Converter[T,R] extends Def[Converter[T,R]] {-->
   <!--def eT: Elem[T]-->
   <!--def eR: Elem[R]-->
   <!--def convFun: Rep[T => R]-->
-  <!--def apply(x: Rep[T]): Rep[R] }-->
-<!--def hasConverter[A,B](-->
-    <!--eA: Elem[A], eB: Elem[B]): Option[Conv[A,B]] -->
-<!--\end{lstlisting}-->
-<!--\vspace{-0.5em}-->
-<!--\caption{First-class converters}-->
-<!--\label{fig:converter}-->
-<!--\end{figure}-->
+  <!--def apply(x: Rep[T]): Rep[R] -->
+<!--}-->
+<!--```-->
+ <!---->
+<!--```scala-->
+<!--def hasConverter[A,B](eA: Elem[A], eB: Elem[B]): Option[Conv[A,B]] -->
+<!--```-->
 
-<!--Function \lst{hasConverter} is also provided by Scalan to generate converter (if it is possible)-->
+<!--Function \lst{hasConverter} is implemented in Scalan to generate converter (if it is possible)-->
 <!--between any two data types given by descriptors. Converters as first-class objects are also added as-->
-<!--nodes to the graph and thus unified using $\alpha$-equivalence of \lst{convFun}.-->
-<!--Generation of converters in Scalan is very easy in many practical cases, the idea is based on-->
-<!--semantics of staged evaluation. For example, converter from \lst{Matr} to \lst{DenseMatr} is defined-->
-<!--in boilerplate as the following function (see~\cite[p.~40]{Slesarenko2014Scalan} for definition when-->
-<!--converters exist and also cf. Figure~\ref{fig:stagedinvoke} for method invocation).-->
+<!--nodes to the graph. -->
 
-<!--\vspace{-0.5em}-->
-<!--\begin{lstlisting}-->
+<!--Generation of converters in Scalan is very easy in many practical cases, the idea is based on-->
+<!--semantics of staged evaluation. For example, converter from Vector to \lst{DenseMatr} is defined-->
+<!--in boilerplate as the following function-->
+
 <!--def toDenseMatr[T](x: Rep[Matr[T]]) = -->
   <!--DenseMatr(x.rows) // rows - virtual method call!-->
+  <!---->
 <!--val c = new Converter(fun {sm: Rep[SparseMatr] => -->
   <!--toDenseMatr(sm) // ok since SparseMatr <: Matr-->
 <!--})-->
-<!--\end{lstlisting}-->
-<!--\vspace{-0.5em}-->
 
 <!--Conversion in the opposite direction is trivial because \lst{DenseMatr} $<:$ \lst{Matr} and-->
 <!--conversion is just an assignment.-->
 
-<!--Thus if we want to generate converter from \lst{SparseMatr} to \lst{DenseMatr} we construct it-->
-<!--like shown above\footnote{Hint: consult~\cite[p.~42,44]{Slesarenko2014Scalan} for semantics of staged-->
-<!--evaluation of the method call \lst{x.rows} in \lst{toDenseMatr} when \lst{x} is of type-->
-<!--\lst{SparseMatr}}.-->
+
+
