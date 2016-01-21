@@ -6,8 +6,8 @@
 - [Virtualized Code](#Idiom2)
 - [Rep Types](#Idiom3)
 - [Reified Lambdas](#Idiom4)
-- [Rewrite Rules](#Idiom5)
-- [Staged Transformation by Re-evaluation](#Idiom6)
+- [Staged Transformation by Re-evaluation](#Idiom5)
+- [Rewrite Rules](#Idiom6)
 - [Type Virtualization](#Idiom7)
 - [Virtualized Method Calls](#Idiom8)
 - [Symbols as Object Proxies](#Idiom9) 
@@ -26,7 +26,7 @@ them yourself. The core of Scalan (`scalan-core` module) is application neurtal 
 principle applicable to any user domain. See [example applications](applications.md) of Scalan for variuos domains. 
 
 To run all the RERL examples youself you can use your favorit Scala Console. 
-The examples are tested with SBT Scala console and Scala Console Run Configuration of IntelliJ IDEA 14.x.
+The examples are tested with SBT Scala console and Scala Console Run Configuration of IntelliJ IDEA 15.0.2.
 In SBT you may need to switch to scalan-core project like it is shown below.
 
 ```
@@ -46,7 +46,7 @@ import scalan._
 scala>
 ```
 
-In IDEA run configuration select scalan-core module as shown below
+In IDEA run configuration select an appropriate module like `scalan-core` shown below
 
 ![](graphs/scala_console_run_config.png)
 
@@ -66,7 +66,7 @@ its staged evaluation will result in construction of the following graph
 
 ![](graphs/aamvm.dot.png)
 
-Related [code]()
+See also [paper](http://dl.acm.org/citation.cfm?id=2633632) where staged evaluation is defined if a more formalized way.
 
 <a name="Idiom2"></a>
 ### Idiom 2: Virtualized Code
@@ -92,7 +92,8 @@ fragment of Scala code.
 
 Virtualized code brings us to *"Rep Types"* and *"Reified Lambdas"* idioms.
 
-Related [code]()
+See also [example code](https://github.com/scalan/scalan/blob/master/linear-algebra/src/test/scala/scalan/linalgebra/LinearAlgebraExamples.scala) and
+[test](https://github.com/scalan/scalan/blob/master/linear-algebra/src/test/scala/scalan/linalgebra/MvmTests.scala)
 
 <a name="Idiom3"></a> 
 ### Idiom 3: Rep Types
@@ -147,7 +148,9 @@ Here `Exp` is a type of expressions which are represented by graphs instead of t
  
 ```
 scala> import scalan._
-val ctx = new ScalanDslExp 
+val ctx = new ScalanDslExp {
+  override val currentPass = DefaultPass("mypass", Pass.defaultPassConfig.copy(constantPropagation = false))
+}
 import ctx._
 val x: Rep[Int] = 10
 val y = x + 1
@@ -176,8 +179,10 @@ Exp[B]` and `Exp[A => B]` correspondingly.
 To understand the difference consider the following example (in staged context)
 
 ```scala
-scala> 
-val ctx = new ScalanDslExp 
+import scalan._ 
+val ctx = new ScalanDslExp {
+  override val currentPass = DefaultPass("mypass", Pass.defaultPassConfig.copy(constantPropagation = false))
+}
 import ctx._
 val x: Rep[Int] = 10
 val inc = (x: Rep[Int]) => x + 1
@@ -201,6 +206,7 @@ Now consider the following example
 
 ```scala
 scala> 
+import scalan._ 
 val ctx = new ScalanDslExp 
 import ctx._
 val x: Rep[Int] = 10
@@ -221,18 +227,70 @@ Which give us the following graph
 The function `mkLambda` *reifies* the given Scala function and is defined as the following
 
 ```scala
-def mkLambda[A,B](fun: Rep[A] => Rep[B], mayInline: Boolean)(implicit eA: LElem[A], eB: Elem[B]): Rep[A => B]
+def mkLambda[A,B](f: Rep[A] => Rep[B], mayInline: Boolean)(implicit eA: LElem[A], eB: Elem[B]): Rep[A => B]
 ```
 
-It works in four steps:
+Function `fun` is a shortcut which is used in most cases
+
+```scala
+implicit def fun[A,B](f: Rep[A] => Rep[B])(implicit eA: LElem[A], eB: Elem[B]): Rep[A => B] = mkLambda(f, true)
+```
+Note: type descriptors `LElem` and `Elem` are described in [Idiom 10](#Idiom10).
+
+The functions work in four steps:
 
 - creates a fresh symbol for lambda-bound variable `x` 
-- executes argument `fun` using the fresh symbol, computing resulting symbol `y`
-- stores symbols `x` and `y` in special graph node `Lambda(x,y)`
-- add `Lambda` node to the graph and returns its symbol as result
+- execute argument `f` using the fresh symbol, computing resulting symbol `y`
+- store symbols `x` and `y` in special graph node `Lambda(x,y)`
+- add `Lambda` node to the graph and return its symbol as result
+
 
 <a name="Idiom5"></a> 
-### Idiom 5: Rewrite rules 
+### Idiom 5: Staged Transformation by Re-evaluation
+
+As shown in [Idiom 3](#Idiom3), one way to build a program graph in Scalan is to execute virtualized code of the program
+in staged mode (perform staged evaluation). Here we consider an alternative. Every graph can be *re-evaluated* or
+traversed in topological order, visiting graph nodes with respect to the data-flow dependencies of IR. This formally
+connects re-evaluation to the semantics of the language and, in a sence, equivalent to staged evaluation of the original
+code. More formally this is described in our [paper](http://dl.acm.org/citation.cfm?id=2633632).
+
+Each visited node of the original graph is cloned and added under fresh symbol (identifier) to the *sea-of-nodes-like*
+universe of Symbol -> Definition dictionary pairs. The mapping between original and cloned nodes is stored during
+traversal and is used to keep relationship between cloned nodes. This can be thought of as if the original edges are
+also cloned to the edges between the cloned nodes.
+
+It is better illustrated by the following REPL
+
+```scala
+import scalan._
+val ctx = new ScalanDslExp
+import ctx._
+val calc = fun { (in: Rep[(Int, (Int, Int))]) =>
+  val Pair(a, Pair(b, c)) = in
+  a * c + b * c
+}
+
+val calcClone = ProgramGraph.transform(calc, NoRewriting)
+showGraphs(calc, calcClone)
+
+scala> ctx: scalan.ScalanDslExp = scalan.ScalanDslExp@350bbd5d
+scala> import ctx._
+scala> calc: ctx.Rep[((Int, (Int, Int))) => Int] = s3
+scala> calcClone: ctx.Rep[((Int, (Int, Int))) => Int] = s12
+```
+
+Which outputs the following graphs for `calc` and `calcClone` functions
+
+![](graphs/calc_clone_graph.dot.png)
+
+Note, the two graphs are what is called *alpha-equivalent*, they equal up to renaming of their symbols. Thus,
+`transform` without rewriting (more precisely with `NoRewriting` rewriter) can be considered as identity transformation
+because it produces a new graph, which is alpha-equivalent to the original.
+
+Staged Transformation by re-evaluation idiom allows to implementent [Multi-stage Compilation Pipeline](#Idiom???).
+
+<a name="Idiom6"></a> 
+### Idiom 6: Rewrite rules 
 
 Staged evaluation of virtualized code produces a graph-based data structure, step by step adding operations (as nodes)
 to the resulting graph. For each new node added to the graph a set of rewrite rules is exercised for applicability.
@@ -277,7 +335,7 @@ Which outputs the following graphs for `calc` and `calcOpt` functions
 ![](graphs/rewrite_rule.dot.png)
 
 Method `transform` takes the root symbol of the graph and some rewriter and produces a new graph by *staged re-evaluation*
-of the original graph (see [idiom 6](#Idiom6)). It tries to rewrite each node of the new graph.
+of the original graph (see [idiom 5](#Idiom5)). It tries to rewrite each node of the new graph.
 
 ```scala
 def transform[A](s: Exp[A], rw: Rewriter = NoRewriting, t: MapTransformer = MapTransformer.Empty): Exp[A]
@@ -291,51 +349,6 @@ There are many different ways to define rewriters in Scalan:
 
 Rules can also be associated with compilation phases (see *[Multi-stage compilation pipeline](#Idiom???)* idiom).
 
-
-
-<a name="Idiom6"></a> 
-### Idiom 6: Staged Transformation by Re-evaluation
-
-As shown in [Idiom 3](#Idiom3), one way to build a program graph in Scalan is to execute virtualized code of the program
-in staged mode (perform staged evaluation). Here we consider an alternative. Every graph can be *re-evaluated* or
-traversed in topological order, visiting graph nodes with respect to the data-flow dependencies of IR. This formally
-connects re-evaluation to the semantics of the language and, in a sence, equivalent to staged evaluation of the original
-code. More formally this is described in our [paper](http://dl.acm.org/citation.cfm?id=2633632).
-
-Each visited node of the original graph is cloned and added under fresh symbol (identifier) to the *sea-of-nodes-like*
-universe of Symbol -> Definition dictionary pairs. The mapping between original and cloned nodes is stored during
-traversal and is used to keep relationship between cloned nodes. This can be thought of as if the original edges are
-also cloned to the edges between the cloned nodes.
-
-It is better illustrated by the following REPL
-
-```scala
-import scalan._
-val ctx = new ScalanDslExp
-import ctx._
-val calc = fun { (in: Rep[(Int, (Int, Int))]) =>
-  val Pair(a, Pair(b, c)) = in
-  a * c + b * c
-}
-
-val calcClone = ProgramGraph.transform(calc, NoRewriting)
-showGraphs(calc, calcClone)
-
-scala> ctx: scalan.ScalanDslExp = scalan.ScalanDslExp@350bbd5d
-scala> import ctx._
-scala> calc: ctx.Rep[((Int, (Int, Int))) => Int] = s3
-scala> calcClone: ctx.Rep[((Int, (Int, Int))) => Int] = s12
-```
-
-Which outputs the following graphs for `calc` and `calcClone` functions
-
-![](graphs/calc_clone_graph.dot.png)
-
-Note, the two graphs are what is called *alpha-equivalent*, they equal up to renaming of their symbols. Thus,
-`transform` without rewriting (more precisely with `NoRewriting` rewriter) can be considered as identity transformation
-because it produces a new graph, which is alpha-equivalent to the original.
-
-Staged Transformation by re-evaluation idiom allows to implementent [Multi-stage Compilation Pipeline](#Idiom???).
 
 <a name="Idiom7"></a> 
 ### Idiom 7: Type Virtualization 
@@ -371,17 +384,19 @@ abstract class Interval(val start: Rep[Int], val end: Rep[Int]) extends Segment 
 ``` 
 See [source code](https://github.com/scalan/scalan/blob/master/core/src/test/scala/scalan/common/Segments.scala)
 
-This transformation is systematic and can be performed either manually or by Scalanizer compiler plugin.
+This transformation is systematic and can be performed either manually or by
+[Scalanizer](https://github.com/scalan/scalanizer) compiler plugin.
 
 - every trait should directly or indirectly inherit `Def` 
 - all method signatures are virtualized using `Rep` type constructor
-- `case class` becomes `abstract class`
+- `case class` becomes `abstract class` (which is extended in the boilerplate)
 - object instantiation with `new` is replaced with the *factory-like* instantiation.
 
 This virtualized snippet of code is complemented with boilerplate code generated by `scalan.meta.BoilerplateTool`. The
 tool parses this virtualized snippet and produces all the necessary boilerplate. (See [the
 boilerplate](https://github.com/scalan/scalan/blob/master/core/src/test/scala/scalan/common/impl/SegmentsImpl.scala)
-generated for the example above).
+generated for the example above). Boilerplate is completely transparent for the user and its generation will be
+implemented by Scalanizer in future versions.
 
 With some limitations, type virtualization works for a rather rich subset of Scala including trait hierarchies, generic
 (polymorphic) types and high-kind type parameters.
@@ -490,30 +505,6 @@ showGraphs(vvm)
 <a name="Idiom9"></a> 
 ### Idiom 9: Symbols as Object Proxies 
 
-```scala
-import scalan._
-import scalan.linalgebra._
-class Ctx extends TestContext with MatricesDslExp
-val ctx = new Ctx
-import ctx._
-val sparse2dense = fun { v: Rep[SparseVector[Double]] =>
-  DenseVector(v.items)
-}
-showGraphs(sparse2dense)
-```
-
-```scala
-import scalan._
-import scalan.linalgebra._
-class Ctx extends TestContext with MatricesDslExp { }
-val ctx = new Ctx
-import ctx._
-def sparseData2denseData = fun { data: Rep[SparseVectorData[Double]] =>
-  val v = SparseVector(data)
-  DenseVector(v.items).toData
-}
-```
-
 During staged evaluation each variable of the virtualized code has type `Exp[T]` for some `T` and contains a
 symbol of the graph instead of data values (See [Idiom 3](#Idiom3)).
 
@@ -540,10 +531,10 @@ implicit conversion. Here is what is generated for `Vector` type.
 
 This implicit conversion wraps each `Rep` typed variable with [dynamic
 proxy](https://docs.oracle.com/javase/8/docs/technotes/guides/reflection/proxy.html) object using the generic method
-`proxyOps`. This means that the `dot` method of proxy is actually called and this call is intercepted by dynamic proxy
-`InvocationHandler`. Inside `InvocationHandler` we have all the data in order to create `MethodCall` node: receiver,
-method and args array. Created node is added to the graph and associated with a fresh symbol, this symbol is retured as
-the result of the method call.
+`proxyOps`. This means that the method `dot` is called at the proxy instance and this call is intercepted by dynamic
+proxy `InvocationHandler`. Inside `InvocationHandler` we have all the data in order to create `MethodCall` node:
+receiver, method and args array. Created node is added to the graph and associated with a fresh symbol, this symbol is
+returned as the result of the method call.
 
 <a name="Idiom10"></a> 
 ### Idiom 10: Reified Types 
@@ -736,7 +727,15 @@ bound variable and the corresponding symbol doesn't have definition, thus there 
 (see [Idiom 8](#Idiom8)).
 
 However, we can construct `SparseVector` object from *sparse row data format* then perform conversion to `DenseVector`
-object and then request *dense row data format*. This dataflow graph is constructed in the following example
+object and then request *dense row data format*. The format types are generated in boilerplate based on arguments of
+the primary constructors of the classes and defined as the following
+
+```scala
+  type SparseVectorData[T] = (Collection[Int], (Collection[T], Int))
+  type DenseVectorData[T] = Collection[T]
+```
+
+The described dataflow graph is constructed in the following example
 
 ```scala
 import scalan._
