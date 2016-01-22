@@ -66,12 +66,12 @@ its staged evaluation will result in construction of the following graph
 
 ![](graphs/aamvm.dot.png)
 
-See also [paper](http://dl.acm.org/citation.cfm?id=2633632) where staged evaluation is defined if a more formalized way.
+See also [paper](http://dl.acm.org/citation.cfm?id=2633632) where staged evaluation is defined in a more formalized way.
 
 <a name="Idiom2"></a>
 ### Idiom 2: Virtualized Code
 
-*Code virtualization* is a systematic program transformation performed manually of automatically by
+*Code virtualization* is a systematic program transformation performed manually or automatically by
 [Scalanizer](https://github.com/scalan/scalanizer). Thus, after virtualization the following code 
 
 ```scala
@@ -706,7 +706,7 @@ showGraphs(iso.fromFun, iso.toFun)
 ```
 ![](graphs/composed_iso.dot.png)
 
-One of the applications of isomorphisms automatic generation of converters between different
+One of the applications of isomorphisms is an automatic generation of converters between different
 implementations of the same abstract data type. Consider conversion between `SparseVector` and `DenseVector`.
 
 ```scala
@@ -753,7 +753,7 @@ showGraphs(sparseData2denseData)
 
 Note, that creation of an instance is implemented by applying the method `to` of the representation iso associated with
 `SparseVector` virtualized class (see [Idiom 11](#Idiom11)) and to extract the data from an object the method `from` is
-called from the corresponding (maybe different iso class).
+called from the corresponding (maybe different) iso class.
 
 In this graph, method calls of `to` and `from` methods can be executed, thus if we request execution of all method
 calls, the same source code will result in generation of different graph.
@@ -788,7 +788,7 @@ val vector2dense = fun { v: Rep[Vector[Double]] =>
 }
 ```
 
-It performs conversion from any `Vector` to `DenseVector`. In particular is we apply it to `SparseVector` and
+It performs conversion from any `Vector` to `DenseVector`. In particular if we apply it to `SparseVector` and
 `ConstVector` we can generate required converters.
 
 ```scala
@@ -821,7 +821,7 @@ class Ctx extends MatricesDslExp { override def invokeAll = true }
 val ctx = new Ctx
 import ctx._
 val vector2const = fun { v: Rep[Vector[Double]] =>
-  DenseVector(v.item, v.length)
+  ConstVector(v.item, v.length)
 }
 scala> <console>:33: error: value item is not a member of ctx.Rep[ctx.Vector[Double]]
          ConstVector(v.item, v.length)
