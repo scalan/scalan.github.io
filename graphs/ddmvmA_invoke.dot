@@ -1,0 +1,115 @@
+digraph "ddmvmA_invoke.dot" {
+concentrate=true
+
+subgraph cluster_s316 {
+style=dashed; color="#FFCCFF"
+"s315" [
+label="s315:(Double, Double)"
+color=gray
+]
+"s316" [
+label="s316:((Double, Double)) => Double =\ls315 => s319 = s317 + s318"
+shape=box,color=magenta,tooltip="s316:((Double, Double)) => Double"
+]
+{rank=source; s315}
+"s317" [
+label="s317:Double = s315._1"
+shape=box,color=gray,tooltip="s317:Double"
+]
+"s318" [
+label="s318:Double = s315._2"
+shape=box,color=gray,tooltip="s318:Double"
+]
+{rank=sink; s316}
+}
+"s314" [
+label="s314:Double = Const(0.0)"
+shape=box,color=gray,tooltip="s314:Double"
+]
+subgraph cluster_s307 {
+style=dashed; color="#FFCCFF"
+"s306" [
+label="s306:(Double, Double)"
+color=gray
+]
+"s307" [
+label="s307:((Double, Double)) => Double =\ls306 => s310 = s308 * s309"
+shape=box,color=magenta,tooltip="s307:((Double, Double)) => Double"
+]
+{rank=source; s306}
+"s308" [
+label="s308:Double = s306._1"
+shape=box,color=gray,tooltip="s308:Double"
+]
+"s309" [
+label="s309:Double = s306._2"
+shape=box,color=gray,tooltip="s309:Double"
+]
+{rank=sink; s307}
+}
+subgraph cluster_s119 {
+style=dashed; color="#FFCCFF"
+"s118" [
+label="s118:(Array[Array[Double]], Array[Double])"
+color=gray
+]
+"s119" [
+label="s119:((Array[Array[Double]], Array[Double])) => Array[Double] =\ls118 => s321 = ArrayMap(s120, s298)"
+shape=box,color=magenta,tooltip="s119:((Array[Array[Double]], Array[Double])) => Array[Double]"
+]
+{rank=source; s118}
+"s120" [
+label="s120:Array[Array[Double]] = s118._1"
+shape=box,color=gray,tooltip="s120:Array[Array[Double]]"
+]
+"s121" [
+label="s121:Array[Double] = s118._2"
+shape=box,color=gray,tooltip="s121:Array[Double]"
+]
+subgraph cluster_s298 {
+style=dashed; color="#FFCCFF"
+"s297" [
+label="s297:Array[Double]"
+color=gray
+]
+"s298" [
+label="s298:Array[Double] => Double =\ls297 => s320 = ArrayReduce(s312, Monoid[Double](+, s314, s316))"
+shape=box,color=magenta,tooltip="s298:Array[Double] => Double"
+]
+{rank=source; s297}
+"s311" [
+label="s311:Array[(Double, Double)] =\lArrayZip(s121, s297)"
+shape=box,color=gray,tooltip="s311:Array[(Double, Double)]"
+]
+"s312" [
+label="s312:Array[Double] =\lArrayMap(s311, s307)"
+shape=box,color=gray,tooltip="s312:Array[Double]"
+]
+{rank=sink; s298}
+}
+{rank=sink; s119}
+}
+"s118" -> "s120" [style=solid]
+"s118" -> "s119" [style=dashed, color=lightgray, weight=0]
+"s120" -> "s119" [style=solid]
+"s298" -> "s119" [style=solid]
+"s118" -> "s121" [style=solid]
+"s306" -> "s309" [style=solid]
+"s315" -> "s317" [style=solid]
+"s306" -> "s308" [style=solid]
+"s315" -> "s316" [style=dashed, color=lightgray, weight=0]
+"s317" -> "s316" [style=solid]
+"s318" -> "s316" [style=solid]
+"s315" -> "s318" [style=solid]
+"s121" -> "s311" [style=solid]
+"s297" -> "s311" [style=solid]
+"s306" -> "s307" [style=dashed, color=lightgray, weight=0]
+"s308" -> "s307" [style=solid]
+"s309" -> "s307" [style=solid]
+"s311" -> "s312" [style=solid]
+"s307" -> "s312" [style=solid]
+"s297" -> "s298" [style=dashed, color=lightgray, weight=0]
+"s312" -> "s298" [style=solid]
+"s314" -> "s298" [style=solid]
+"s316" -> "s298" [style=solid]
+}

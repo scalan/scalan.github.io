@@ -1,0 +1,72 @@
+digraph "ddmvmC.dot" {
+concentrate=true
+
+subgraph cluster_s23 {
+style=dashed; color="#FFCCFF"
+"s22" [
+label="s22:Collection[Double]"
+color=gray
+]
+"s23" [
+label="s23:Collection[Double] => DenseVector[Double] =\ls22 => s24 = ExpDenseVector(s22)"
+shape=box,color=magenta,tooltip="s23:Collection[Double] => DenseVector[Double]"
+]
+{rank=source; s22}
+{rank=sink; s23}
+}
+subgraph cluster_s15 {
+style=dashed; color="#FFCCFF"
+"s14" [
+label="s14:(Collection[Collection[Double]], Collection[Double])"
+color=gray
+]
+"s15" [
+label="s15:((Collection[Collection[Double]], Collection[Double])) => Collection[Double] =\ls14 => s51 = s25.Collection.mapBy(s49, BaseElem{Double})"
+shape=box,color=magenta,tooltip="s15:((Collection[Collection[Double]], Collection[Double])) => Collection[Double]"
+]
+{rank=source; s14}
+"s16" [
+label="s16:Collection[Collection[Double]] =\ls14._1"
+shape=box,color=gray,tooltip="s16:Collection[Collection[Double]]"
+]
+"s25" [
+label="s25:Collection[DenseVector[Double]] =\ls16.Collection.mapBy(s23, DenseVectorElem{DenseVector[Double]})"
+shape=box,color=gray,tooltip="s25:Collection[DenseVector[Double]]"
+]
+"s17" [
+label="s17:Collection[Double] = s14._2"
+shape=box,color=gray,tooltip="s17:Collection[Double]"
+]
+"s28" [
+label="s28:DenseVector[Double] =\lExpDenseVector(s17)"
+shape=box,color=green,tooltip="s28:DenseVector[Double]"
+]
+subgraph cluster_s49 {
+style=dashed; color="#FFCCFF"
+"s48" [
+label="s48:Vector[Double]"
+color=gray
+]
+"s49" [
+label="s49:Vector[Double] => Double =\ls48 => s50 = s48.Vector.dot(s28, scala.math.Numeric$DoubleIsFractional$@27a97e08)"
+shape=box,color=magenta,tooltip="s49:Vector[Double] => Double"
+]
+{rank=source; s48}
+{rank=sink; s49}
+}
+{rank=sink; s15}
+}
+"s14" -> "s17" [style=solid]
+"s22" -> "s23" [style=dashed, color=lightgray, weight=0]
+"s22" -> "s23" [style=solid]
+"s14" -> "s15" [style=dashed, color=lightgray, weight=0]
+"s25" -> "s15" [style=solid]
+"s49" -> "s15" [style=solid]
+"s17" -> "s28" [style=solid]
+"s14" -> "s16" [style=solid]
+"s48" -> "s49" [style=dashed, color=lightgray, weight=0]
+"s48" -> "s49" [style=solid]
+"s28" -> "s49" [style=solid]
+"s16" -> "s25" [style=solid]
+"s23" -> "s25" [style=solid]
+}

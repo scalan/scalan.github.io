@@ -14,6 +14,8 @@
 - [Reified Types](#Idiom10)
 - [First-class Isomorphisms](#Idiom11)
 - [First-class Converters](#Idiom12)
+- [Isomorphic Specialization](#Idiom13)
+- [References](#references)
 
 ### Introduction
 
@@ -880,4 +882,90 @@ val sparseData2denseData = fun { data: Rep[Array[SparseVectorData[Double]]] =>
 showGraphs(sparseData2denseData)
 ```    
 ![](graphs/hasConverter_sparse_dense.dot.png)
- 
+
+<a name="Idiom13"></a> 
+### Idiom 13: Isomorphic Specialization 
+
+Isomorphic specialization is a distinctive feature of Scalan which is based on the previously described idioms. It
+allows to automatically specialize (i.e. transfrom) the same program with respect to concrete implementations of abstract
+data types, which are used in the program. Consider the following example of matrix-vector multiplication
+
+```scala
+import scalan._
+import scalan.linalgebra._
+var doInvoke = true
+class Ctx extends MatricesDslExp { override def invokeAll = doInvoke }
+val ctx = new Ctx
+import ctx._
+lazy val mvm = fun { p: Rep[(Matrix[Double], Vector[Double])] =>
+  val Pair(m, v) = p
+  DenseVector(m.rows.mapBy( fun{ r => r dot v }))
+}
+showGraphs(mvm)
+```
+![](graphs/aamvm.dot.png)
+
+All the method calls remain in the graph because they cannot be invoked. However if we explicitly construct an input
+matrix from the concrete implementation, and then invoke `mvm` we get the following graph
+
+```scala
+scala>
+lazy val ddmvmC = fun { p: Rep[(Collection[Collection[Double]], Collection[Double])] =>
+  val Pair(m, v) = p
+  val width = m(0).length
+  val matrix: Matr[Double] = CompoundMatrix(m.map { r: Coll[Double] => DenseVector(r) }, width)
+  val vector: Vec[Double] = DenseVector(v)
+  mvm(matrix, vector).items
+}
+showGraphs(ddmvmC)
+```
+![](graphs/ddmvmC.dot.png)
+
+We wrapped `mvm` inocation in the new function `ddmvmC` which effectively means inlining of `mvm` in the body of
+`ddmvmC`. As a consequence, the method `rows` of `Matrix` has been invoked and also inlined in the body of `ddmvmC`,
+however some method of `Collection` and `Vector` are still reified as delayed method calls. Note, that the input type of
+`ddmvmC` has been selected to ensure contruction of the concrete class `CompoundMatrix`.
+
+We can play this trick again by selecting some concrete implementation of `Collection` trait and wrapping `ddmvmC`
+
+```scala
+scala>
+lazy val ddmvmA = fun { p: Rep[(Array[Array[Double]], Array[Double])] =>
+  val Pair(m, v) = p
+  val matrix = CollectionOverArray(m.map(r => CollectionOverArray(r)))
+  val vector = CollectionOverArray(v)
+  ddmvmC(matrix, vector).arr
+}
+showGraphs(ddmvmA)
+```
+![](graphs/ddmvmA_invoke.dot.png)
+
+The resulting code contain only `Array` operations which are all supported by Scalan's default codegen and thus this example can be executed.
+
+Note, in these examples we assumed that collections are more concrete that matrix and arrays are more concrete than
+collections. But this essentially depend on how the classes are implemented. In our case we selected the matrix class
+implemented in terms of collections and the collection class implemented in terms of arrays. The following example show
+how to specialize `ddmvmC` with respect to `List` based collections.
+
+```scala
+scala>
+def ddmvmL = fun { p: Rep[(List[List[Double]], List[Double])] =>
+  val Pair(m, v) = p
+  val matrix = CollectionOverList(m.map(r => CollectionOverList(r)))
+  val vector = CollectionOverList(v)
+  ddmvmC(matrix, vector).arr
+}
+showGraphs(ddmvmA)
+```
+![](graphs/ddmvmL_invoke.dot.png)
+
+This meta-programming pattern is implemented in Scalan framework by using a set of generic rewrite rules which work for
+any user-defined virtualized traits and classes. The the design and formalization of isomorphic specialization is
+described in [the paper](http://dl.acm.org/citation.cfm?id=2633632). See also Scala Days Amsterdam [talk]().
+
+### References
+
+1. [Scalan framework](http://github.com/scalan/scalan)
+2. [Scalanizer: a Scalan Compiler plugin for hotspot optimizations](https://github.com/scalan/scalanizer)
+3. [Scala Days Amsterdam talk](https://www.parleys.com/tutorial/program-functionally-execute-imperatively-peeling-abstraction-overhead-from-functional-programs)
+4. [Isomorphic Specialization by Staged Evaluation paper](http://dl.acm.org/citation.cfm?id=2633632)

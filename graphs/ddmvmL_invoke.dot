@@ -1,0 +1,130 @@
+digraph "ddmvmL_invoke.dot" {
+concentrate=true
+
+"s309" [
+label="s309:Double = Const(0.0)"
+shape=box,color=gray,tooltip="s309:Double"
+]
+subgraph cluster_s302 {
+style=dashed; color="#FFCCFF"
+"s301" [
+label="s301:(Double, Double)"
+color=gray
+]
+"s302" [
+label="s302:((Double, Double)) => Double =\ls301 => s305 = s303 * s304"
+shape=box,color=magenta,tooltip="s302:((Double, Double)) => Double"
+]
+{rank=source; s301}
+"s303" [
+label="s303:Double = s301._1"
+shape=box,color=gray,tooltip="s303:Double"
+]
+"s304" [
+label="s304:Double = s301._2"
+shape=box,color=gray,tooltip="s304:Double"
+]
+{rank=sink; s302}
+}
+subgraph cluster_s311 {
+style=dashed; color="#FFCCFF"
+"s310" [
+label="s310:(Double, Double)"
+color=gray
+]
+"s311" [
+label="s311:((Double, Double)) => Double =\ls310 => s314 = s312 + s313"
+shape=box,color=magenta,tooltip="s311:((Double, Double)) => Double"
+]
+{rank=source; s310}
+"s312" [
+label="s312:Double = s310._1"
+shape=box,color=gray,tooltip="s312:Double"
+]
+"s313" [
+label="s313:Double = s310._2"
+shape=box,color=gray,tooltip="s313:Double"
+]
+{rank=sink; s311}
+}
+subgraph cluster_s320 {
+style=dashed; color="#FFCCFF"
+"s319" [
+label="s319:(List[List[Double]], List[Double])"
+color=gray
+]
+"s320" [
+label="s320:((List[List[Double]], List[Double])) => Array[Double] =\ls319 => s514 = ListToArray(s511)"
+shape=box,color=magenta,tooltip="s320:((List[List[Double]], List[Double])) => Array[Double]"
+]
+{rank=source; s319}
+"s321" [
+label="s321:List[List[Double]] = s319._1"
+shape=box,color=gray,tooltip="s321:List[List[Double]]"
+]
+"s322" [
+label="s322:List[Double] = s319._2"
+shape=box,color=gray,tooltip="s322:List[Double]"
+]
+"s505" [
+label="s505:Array[Double] = ListToArray(s322)"
+shape=box,color=gray,tooltip="s505:Array[Double]"
+]
+subgraph cluster_s496 {
+style=dashed; color="#FFCCFF"
+"s495" [
+label="s495:List[Double]"
+color=gray
+]
+"s496" [
+label="s496:List[Double] => Double =\ls495 => s510 = ArrayReduce(s508, Monoid[Double](+, s309, s311))"
+shape=box,color=magenta,tooltip="s496:List[Double] => Double"
+]
+{rank=source; s495}
+"s506" [
+label="s506:Array[Double] = ListToArray(s495)"
+shape=box,color=gray,tooltip="s506:Array[Double]"
+]
+"s507" [
+label="s507:Array[(Double, Double)] =\lArrayZip(s505, s506)"
+shape=box,color=gray,tooltip="s507:Array[(Double, Double)]"
+]
+"s508" [
+label="s508:Array[Double] =\lArrayMap(s507, s302)"
+shape=box,color=gray,tooltip="s508:Array[Double]"
+]
+{rank=sink; s496}
+}
+"s511" [
+label="s511:List[Double] = ListMap(s321, s496)"
+shape=box,color=gray,tooltip="s511:List[Double]"
+]
+{rank=sink; s320}
+}
+"s319" -> "s322" [style=solid]
+"s301" -> "s304" [style=solid]
+"s301" -> "s303" [style=solid]
+"s322" -> "s505" [style=solid]
+"s301" -> "s302" [style=dashed, color=lightgray, weight=0]
+"s303" -> "s302" [style=solid]
+"s304" -> "s302" [style=solid]
+"s495" -> "s496" [style=dashed, color=lightgray, weight=0]
+"s508" -> "s496" [style=solid]
+"s309" -> "s496" [style=solid]
+"s311" -> "s496" [style=solid]
+"s321" -> "s511" [style=solid]
+"s496" -> "s511" [style=solid]
+"s507" -> "s508" [style=solid]
+"s302" -> "s508" [style=solid]
+"s319" -> "s321" [style=solid]
+"s495" -> "s506" [style=solid]
+"s505" -> "s507" [style=solid]
+"s506" -> "s507" [style=solid]
+"s310" -> "s311" [style=dashed, color=lightgray, weight=0]
+"s312" -> "s311" [style=solid]
+"s313" -> "s311" [style=solid]
+"s310" -> "s312" [style=solid]
+"s310" -> "s313" [style=solid]
+"s319" -> "s320" [style=dashed, color=lightgray, weight=0]
+"s511" -> "s320" [style=solid]
+}

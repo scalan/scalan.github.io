@@ -1,56 +1,56 @@
-digraph "aamvm.dot" {
+digraph "mvm.dot" {
 concentrate=true
 
-subgraph cluster_s3 {
+subgraph cluster_s4 {
 style=dashed; color="#FFCCFF"
-"s2" [
-label="s2:(AbstractMatrix[Double], AbstractVector[Double])"
-color=gray
-]
 "s3" [
-label="s3:((AbstractMatrix[Double], AbstractVector[Double])) => DenseVector[Double] =\ls2 => s12 = ExpDenseVector(s11)"
-shape=box,color=magenta,tooltip="s3:((AbstractMatrix[Double], AbstractVector[Double])) => DenseVector[Double]"
-]
-{rank=source; s2}
-"s4" [
-label="s4:AbstractMatrix[Double] = s2._1"
-shape=box,color=gray,tooltip="s4:AbstractMatrix[Double]"
-]
-"s7" [
-label="s7:Collection[AbstractVector[Double]] =\ls4.AbstractMatrix.rows()"
-shape=box,color=gray,tooltip="s7:Collection[AbstractVector[Double]]"
-]
-"s5" [
-label="s5:AbstractVector[Double] = s2._2"
-shape=box,color=gray,tooltip="s5:AbstractVector[Double]"
-]
-subgraph cluster_s9 {
-style=dashed; color="#FFCCFF"
-"s8" [
-label="s8:AbstractVector[Double]"
+label="s3:(Matrix[Double], Vector[Double])"
 color=gray
 ]
+"s4" [
+label="s4:((Matrix[Double], Vector[Double])) => DenseVector[Double] =\ls3 => s13 = ExpDenseVector(s12)"
+shape=box,color=magenta,tooltip="s4:((Matrix[Double], Vector[Double])) => DenseVector[Double]"
+]
+{rank=source; s3}
+"s5" [
+label="s5:Matrix[Double] = s3._1"
+shape=box,color=gray,tooltip="s5:Matrix[Double]"
+]
+"s8" [
+label="s8:Collection[Vector[Double]] =\ls5.Matrix.rows()"
+shape=box,color=gray,tooltip="s8:Collection[Vector[Double]]"
+]
+"s6" [
+label="s6:Vector[Double] = s3._2"
+shape=box,color=gray,tooltip="s6:Vector[Double]"
+]
+subgraph cluster_s10 {
+style=dashed; color="#FFCCFF"
 "s9" [
-label="s9:AbstractVector[Double] => Double =\ls8 => s10 = s8.AbstractVector.dot(s5, scala.math.Numeric$DoubleIsFractional$@6ce90bc5)"
-shape=box,color=magenta,tooltip="s9:AbstractVector[Double] => Double"
+label="s9:Vector[Double]"
+color=gray
 ]
-{rank=source; s8}
-{rank=sink; s9}
-}
-"s11" [
-label="s11:Collection[Double] =\ls7.Collection.mapBy(s9, BaseElem{Double})"
-shape=box,color=gray,tooltip="s11:Collection[Double]"
+"s10" [
+label="s10:Vector[Double] => Double =\ls9 => s11 = s9.Vector.dot(s6, scala.math.Numeric$DoubleIsFractional$@50d951e7)"
+shape=box,color=magenta,tooltip="s10:Vector[Double] => Double"
 ]
-{rank=sink; s3}
+{rank=source; s9}
+{rank=sink; s10}
 }
-"s2" -> "s4" [style=solid]
-"s4" -> "s7" [style=solid]
-"s7" -> "s11" [style=solid]
-"s9" -> "s11" [style=solid]
-"s2" -> "s3" [style=dashed, color=lightgray, weight=0]
-"s11" -> "s3" [style=solid]
-"s2" -> "s5" [style=solid]
-"s8" -> "s9" [style=dashed, color=lightgray, weight=0]
-"s8" -> "s9" [style=solid]
-"s5" -> "s9" [style=solid]
+"s12" [
+label="s12:Collection[Double] =\ls8.Collection.mapBy(s10, BaseElem{Double})"
+shape=box,color=gray,tooltip="s12:Collection[Double]"
+]
+{rank=sink; s4}
+}
+"s9" -> "s10" [style=dashed, color=lightgray, weight=0]
+"s9" -> "s10" [style=solid]
+"s6" -> "s10" [style=solid]
+"s3" -> "s4" [style=dashed, color=lightgray, weight=0]
+"s12" -> "s4" [style=solid]
+"s3" -> "s6" [style=solid]
+"s8" -> "s12" [style=solid]
+"s10" -> "s12" [style=solid]
+"s3" -> "s5" [style=solid]
+"s5" -> "s8" [style=solid]
 }
