@@ -57,7 +57,7 @@ In IDEA run configuration select an appropriate module like `scalan-core` shown 
 
 *Staged Evaluation* refers to a special mode of program evaluation (or interpretation). Whereas standard evaluation
 aims to produce output data for given input data, staged evaluation of program `P` produces graph-based intermediate
-representation of `P`. For example, given a program
+representation of `P`, which can be evaluated normally on later stages. For example, given a program
 
 ```scala
   def mvm(matrix: Matrix[Double], vector: Vector[Double]): Vector[Double] =
@@ -65,12 +65,13 @@ representation of `P`. For example, given a program
 ```
 
 its staged evaluation will result in construction of the following graph (shown with annotations explaining graphical
-notation)
+notation).
 
 ![](graphs/annotated_graph.png)
 
-See also [Isomorphic Specialization by Staged Evaluation paper](http://pat.keldysh.ru/~slesarenko/) where staged
-evaluation is defined in a more formalized way.
+Staged evaluation can be understood as *self-reproducing process*, when a program is stage evaluated it reproduces
+itself in a graph-based IR. See also [Isomorphic Specialization by Staged Evaluation
+paper](http://pat.keldysh.ru/~slesarenko/) where staged evaluation is defined in a more formalized way.
 
 <a name="Idiom2"></a>
 ### Idiom 2: Virtualized Code
