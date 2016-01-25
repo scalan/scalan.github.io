@@ -308,7 +308,8 @@ def rewrite[A](x: Exp[A]): Option[Exp[A]]
 ``` 
 
 This function is called for each new node of the graph during staged evaluation. If `rewrite` returns `Some(symbol)`
-then this symbol substitutes the original symbol in further evaluation process.
+then this symbol substitutes the original symbol in further evaluation process. A set of rewrite rules should preserve
+semantics of the program.
 
 The effect of rewriting is shown in the following REPL session
 
@@ -472,6 +473,9 @@ def tryInvoke: InvokeResult = receiver match {
 }
 ```
 
+Note, that graph is built from the deepest point in call stack. The symbol returned by `invoke` method is already added
+to the graph during execution of the method `invoke`.
+
 Above mentioned `InvokeRewriter` is used in Scalan by default so that method invocation is controlled by
 `isInvokeEnabled` method that can be overriden. The method `dot` is shown below 
 
@@ -487,7 +491,8 @@ abstract class DenseVector[T](val items: Rep[Collection[T]])(implicit val eT: El
 }
 ```
 
-In the following example the function `vvm` is reified in the context when invocation is enabled for all method calls.
+In the following example the function `vvm` is reified in the context when invocation is enabled for all
+method calls.
 
 ```scala
 import java.lang.reflect.Method
