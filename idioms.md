@@ -15,6 +15,7 @@
 - [First-class Isomorphisms](#Idiom11)
 - [First-class Converters](#Idiom12)
 - [Isomorphic Specialization](#Idiom13)
+- [Multi-stage Transformation Pipeline](#Idiom14) 
 - [References](#references)
 
 ### Introduction
@@ -108,7 +109,7 @@ developed in [LMS](http://scala-lms.github.io/) staging. It is also known as *li
 queries](http://slick.typesafe.com/doc/3.1.1/queries.html).
 
 In Scalan, during code virtualization, original types (like `Matrix` and `Vector`) are replaced with Rep types
-`Rep[Matrix]` and `Rep[Vector]` correspondingly. Here `Rep` is declared as abstract type
+`Rep[Matrix]` and `Rep[Vector]` correspondingly. Here `Rep` (short for *representation*) is declared as abstract type
 
 ```scala
 type Rep[+T]
@@ -149,7 +150,7 @@ following
 type Rep[+T] = Exp[T]
 ```
 
-Here `Exp` is a type of expressions which are represented by graphs instead of trees
+Here `Exp` is a type of expressions which are represented by graphs instead of *abstract syntax trees* (AST)
  
 ```
 scala> import scalan._
@@ -292,7 +293,7 @@ Note, the two graphs are what is called *alpha-equivalent*, they equal up to ren
 `transform` without rewriting (more precisely with `NoRewriting` rewriter) can be considered as identity transformation
 because it produces a new graph, which is alpha-equivalent to the original.
 
-Staged Transformation by re-evaluation idiom allows to implementent [Multi-stage Compilation Pipeline](#Idiom???).
+Staged Transformation by re-evaluation idiom allows to implementent [Multi-stage Compilation Pipeline](#Idiom14).
 
 <a name="Idiom6"></a> 
 ### Idiom 6: Rewrite rules 
@@ -352,7 +353,7 @@ There are many different ways to define rewriters in Scalan:
 - by using Scala's `PartialFunction[Exp[_], Exp[_]]` 
 - by direct implementation of `Rewriter` interface or inheriting from one of the helper classes
 
-Rules can also be associated with compilation phases (see *[Multi-stage compilation pipeline](#Idiom???)* idiom).
+Rules can also be associated with compilation phases (see *[Multi-stage compilation pipeline](#Idiom14)* idiom).
 
 
 <a name="Idiom7"></a> 
@@ -967,6 +968,15 @@ any user-defined virtualized traits and classes. The the design and formalizatio
 described in [Isomorphic Specialization by Staged Evaluation paper](http://pat.keldysh.ru/~slesarenko/). See also Scala
 Days Amsterdam
 [talk](https://www.parleys.com/tutorial/program-functionally-execute-imperatively-peeling-abstraction-overhead-from-functional-programs).
+
+<a name="Idiom14"></a> 
+### Idiom 14: Multi-stage Transformation Pipeline 
+
+Staged evaluation of [virtualized code](#Idiom2) produces a graph-based IR of the program under evaluation. The graph IR
+can be [re-evaluated](#Idiom5) with a set of rewrite rules constructing a new graph. This process can be repeated many
+times with different sets of rewrite rules and other graph transformations. The pipeline of such transformations is
+represented in Scalan by
+[Compiler](https://github.com/scalan/scalan/blob/master/core/src/main/scala/scalan/compilation/Compiler.scala) object.
 
 ### References
 
