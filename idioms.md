@@ -68,7 +68,8 @@ its staged evaluation will result in construction of the following graph
 
 ![](graphs/aamvm.dot.png)
 
-See also [paper](http://dl.acm.org/citation.cfm?id=2633632) where staged evaluation is defined in a more formalized way.
+See also [Isomorphic Specialization by Staged Evaluation paper](http://pat.keldysh.ru/~slesarenko/) where staged
+evaluation is defined in a more formalized way.
 
 <a name="Idiom2"></a>
 ### Idiom 2: Virtualized Code
@@ -254,7 +255,7 @@ As shown in [Idiom 3](#Idiom3), one way to build a program graph in Scalan is to
 in staged mode (perform staged evaluation). Here we consider an alternative. Every graph can be *re-evaluated* or
 traversed in topological order, visiting graph nodes with respect to the data-flow dependencies of IR. This formally
 connects re-evaluation to the semantics of the language and, in a sence, equivalent to staged evaluation of the original
-code. More formally this is described in our [paper](http://dl.acm.org/citation.cfm?id=2633632).
+code. More formally this is described in our [Isomorphic Specialization by Staged Evaluation paper](http://pat.keldysh.ru/~slesarenko/).
 
 Each visited node of the original graph is cloned and added under fresh symbol (identifier) to the *sea-of-nodes-like*
 universe of Symbol -> Definition dictionary pairs. The mapping between original and cloned nodes is stored during
@@ -961,11 +962,13 @@ showGraphs(ddmvmA)
 
 This meta-programming pattern is implemented in Scalan framework by using a set of generic rewrite rules which work for
 any user-defined virtualized traits and classes. The the design and formalization of isomorphic specialization is
-described in [the paper](http://dl.acm.org/citation.cfm?id=2633632). See also Scala Days Amsterdam [talk]().
+described in [Isomorphic Specialization by Staged Evaluation paper](http://pat.keldysh.ru/~slesarenko/). See also Scala
+Days Amsterdam
+[talk](https://www.parleys.com/tutorial/program-functionally-execute-imperatively-peeling-abstraction-overhead-from-functional-programs).
 
 ### References
 
 1. [Scalan framework](http://github.com/scalan/scalan)
 2. [Scalanizer: a Scalan Compiler plugin for hotspot optimizations](https://github.com/scalan/scalanizer)
 3. [Scala Days Amsterdam talk](https://www.parleys.com/tutorial/program-functionally-execute-imperatively-peeling-abstraction-overhead-from-functional-programs)
-4. [Isomorphic Specialization by Staged Evaluation paper](http://dl.acm.org/citation.cfm?id=2633632)
+4. [Isomorphic Specialization by Staged Evaluation paper on author's home page](http://pat.keldysh.ru/~slesarenko/)
