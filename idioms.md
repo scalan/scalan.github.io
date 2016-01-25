@@ -64,9 +64,10 @@ representation of `P`. For example, given a program
     DenseVector(matrix.rows.mapBy(r => r dot vector))
 ```
 
-its staged evaluation will result in construction of the following graph
+its staged evaluation will result in construction of the following graph (shown with annotations explaining graphical
+notation)
 
-![](graphs/aamvm.dot.png)
+![](graphs/annotated_graph.png)
 
 See also [Isomorphic Specialization by Staged Evaluation paper](http://pat.keldysh.ru/~slesarenko/) where staged
 evaluation is defined in a more formalized way.
