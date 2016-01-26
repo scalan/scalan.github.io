@@ -16,7 +16,7 @@ applications from Scalan distribution.
 
 Abstract data type `Collection` is used in Scalan to abstract form concrete representation type such as `Array`, `List`
 etc. Domain specific abstractions implemented using `Collection` interface can be automatically specialized with respect
-to any its implementation.
+to any such representation.
 
 See [source code](https://github.com/scalan/scalan/blob/master/collections/src/main/scala/scalan/collections/Collections.scala) of
 abstract data type definition and concrete implementation classes as well as [related tests](https://github.com/scalan/scalan/blob/master/collections/src/test/scala/scalan/collections/CollectionExamplesSuite.scala).
