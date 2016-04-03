@@ -421,7 +421,7 @@ Consider the following example of staged evaluation of the virtualized code invo
 import scalan._
 import scalan.collections._
 import scalan.linalgebra._
-val ctx = new MatricesDslExp {}
+val ctx = new LADslExp {}
 import ctx._
 val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
   val Pair(items1, items2) = p
@@ -499,7 +499,7 @@ import java.lang.reflect.Method
 import scalan._
 import scalan.collections._
 import scalan.linalgebra._
-val ctx = new MatricesDslExp { override def isInvokeEnabled(d: Def[_], m: Method) = true }
+val ctx = new LADslExp { override def isInvokeEnabled(d: Def[_], m: Method) = true }
 import ctx._
 val vvm = fun { p: Rep[(Collection[Double], Collection[Double])] =>
   val Pair(items1, items2) = p
@@ -723,7 +723,7 @@ implementations of the same abstract data type. Consider conversion between `Spa
 ```scala
 import scalan._
 import scalan.linalgebra._
-class Ctx extends MatricesDslExp { override def invokeAll = true }
+class Ctx extends LADslExp { override def invokeAll = true }
 val ctx = new Ctx
 import ctx._
 val sparse2dense = fun { v: Rep[SparseVector[Double]] =>
@@ -751,7 +751,7 @@ The described dataflow graph is constructed in the following example
 ```scala
 import scalan._
 import scalan.linalgebra._
-class Ctx extends MatricesDslExp { override def invokeAll = false }
+class Ctx extends LADslExp { override def invokeAll = false }
 val ctx = new Ctx
 import ctx._
 def sparseData2denseData = fun { data: Rep[SparseVectorData[Double]] =>
@@ -772,7 +772,7 @@ calls, the same source code will result in generation of different graph.
 ```scala
 import scalan._
 import scalan.linalgebra._
-class Ctx extends MatricesDslExp { override def invokeAll = true }
+class Ctx extends LADslExp { override def invokeAll = true }
 val ctx = new Ctx
 import ctx._
 def sparseData2denseData = fun { data: Rep[SparseVectorData[Double]] =>
@@ -805,7 +805,7 @@ It performs conversion from any `Vector` to `DenseVector`. In particular if we a
 ```scala
 import scalan._
 import scalan.linalgebra._
-class Ctx extends MatricesDslExp { override def invokeAll = true }
+class Ctx extends LADslExp { override def invokeAll = true }
 val ctx = new Ctx
 import ctx._
 val vector2dense = fun { v: Rep[Vector[Double]] =>
@@ -828,7 +828,7 @@ However, attempt to write converter to `ConstVector` fails
 ```scala
 import scalan._
 import scalan.linalgebra._
-class Ctx extends MatricesDslExp { override def invokeAll = true }
+class Ctx extends LADslExp { override def invokeAll = true }
 val ctx = new Ctx
 import ctx._
 val vector2const = fun { v: Rep[Vector[Double]] =>
@@ -880,7 +880,7 @@ The following example illustrates the first-class nature of the converters
 ```scala
 import scalan._
 import scalan.linalgebra._
-class Ctx extends MatricesDslExp { override def invokeAll = true }
+class Ctx extends LADslExp { override def invokeAll = true }
 val ctx = new Ctx
 import ctx._
 val Some(c) = hasConverter(element[Array[SparseVector[Double]]], element[Array[DenseVector[Double]]])
@@ -903,7 +903,7 @@ data types, which are used in the program. Consider the following example of mat
 import scalan._
 import scalan.linalgebra._
 var doInvoke = true
-class Ctx extends MatricesDslExp { override def invokeAll = doInvoke }
+class Ctx extends LADslExp { override def invokeAll = doInvoke }
 val ctx = new Ctx
 import ctx._
 lazy val mvm = fun { p: Rep[(Matrix[Double], Vector[Double])] =>
