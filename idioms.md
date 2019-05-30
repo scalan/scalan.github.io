@@ -20,7 +20,7 @@
 
 ### Introduction
 
-Scalan is a framework for development of domain-specific compilers in Scala. In particular it supports meta-programming
+Scalan is a framework for development of domain-specific compilers in Scala. In particular, it supports meta-programming
 based on *staged evaluation*. Visit [Scalan Readme](https://github.com/scalan/scalan/blob/master/README.md) for general
 introduction about Scalan and how to get started.
 
@@ -28,9 +28,9 @@ The following is the introduction to meta-programming idioms available in Scalan
 them yourself. The core of Scalan (`scalan-core` module) is application neurtal and generic, thus all the idioms are in
 principle applicable to any user domain. See [example applications](applications.md) of Scalan for variuos domains. 
 
-To run all the RERL examples youself you can use your favorit Scala Console. 
+To run all the REPL examples youself you can use your favorite Scala Console. 
 The examples are tested with SBT Scala console and Scala Console Run Configuration of IntelliJ IDEA 15.0.2.
-In SBT you may need to switch to scalan-core project like it is shown below.
+In SBT you may need to switch to scalan-core project as shown below.
 
 ```
 $ sbt
